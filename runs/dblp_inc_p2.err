@@ -1,0 +1,20 @@
+init: 22.13 s, pcg iters 1283
+inc round 1: v=290626 gain=8165.24 refreshed=16 time=3.86 total=25.99
+inc round 2: v=291203 gain=6138.83 refreshed=0 time=1.02 total=27.00
+inc round 3: v=283749 gain=6710.22 refreshed=16 time=3.88 total=30.89
+inc round 4: v=314274 gain=6643.16 refreshed=0 time=0.99 total=31.87
+inc round 5: v=316419 gain=7031.83 refreshed=16 time=3.91 total=35.78
+inc round 6: v=249685 gain=6860.73 refreshed=0 time=0.96 total=36.74
+inc round 7: v=317078 gain=5036.59 refreshed=0 time=0.95 total=37.70
+inc round 8: v=316023 gain=5406.74 refreshed=16 time=3.79 total=41.49
+inc round 9: v=291308 gain=4761.82 refreshed=0 time=0.98 total=42.47
+inc round 10: v=298791 gain=3837.82 refreshed=0 time=0.99 total=43.47
+inc round 11: v=315549 gain=5319.08 refreshed=16 time=3.92 total=47.39
+inc round 12: v=316596 gain=4080.61 refreshed=0 time=1.02 total=48.41
+inc round 13: v=310749 gain=6220.48 refreshed=16 time=3.98 total=52.39
+inc round 14: v=311395 gain=4951.79 refreshed=16 time=4.01 total=56.40
+inc round 15: v=306800 gain=4897.45 refreshed=0 time=0.99 total=57.40
+inc round 16: v=312017 gain=4819.22 refreshed=0 time=1.01 total=58.41
+inc round 17: v=316391 gain=4563.08 refreshed=0 time=1.06 total=59.47
+inc round 18: v=311771 gain=4495.26 refreshed=16 time=3.90 total=63.38
+inc round 19: v=315920 gain=4087.86 refreshed=0 time=0.04 total=63.41

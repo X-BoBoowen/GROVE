@@ -1,0 +1,7 @@
+*.aux
+*.log
+*.out
+__pycache__/
+/ground
+/schur_cfcm
+/bin/

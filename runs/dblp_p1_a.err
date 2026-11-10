@@ -1,0 +1,20 @@
+init: 6.05 s, pcg iters 338
+round 1: v=26822 gain=489.01 refreshed=48 time=3.89 total=9.97 refresh_iters=512
+round 2: v=18654 gain=193.753 refreshed=176 time=19.82 total=29.79 refresh_iters=2309
+round 3: v=2379 gain=100.523 refreshed=176 time=20.30 total=50.09 refresh_iters=4110
+round 4: v=316331 gain=74.1309 refreshed=144 time=18.16 total=68.24 refresh_iters=5580
+round 5: v=734 gain=61.642 refreshed=96 time=8.12 total=76.37 refresh_iters=6545
+round 6: v=316822 gain=58.1101 refreshed=48 time=3.87 total=80.24 refresh_iters=7023
+round 7: v=317026 gain=52.5043 refreshed=112 time=9.17 total=89.41 refresh_iters=8137
+round 8: v=310693 gain=51.1708 refreshed=32 time=2.80 total=92.21 refresh_iters=8451
+round 9: v=312407 gain=50.4192 refreshed=16 time=1.26 total=93.47 refresh_iters=8609
+round 10: v=315715 gain=49.6966 refreshed=32 time=2.57 total=96.03 refresh_iters=8927
+round 11: v=282374 gain=47.6123 refreshed=64 time=5.25 total=101.29 refresh_iters=9554
+round 12: v=316982 gain=46.5726 refreshed=64 time=5.38 total=106.67 refresh_iters=10189
+round 13: v=316849 gain=45.979 refreshed=32 time=2.72 total=109.39 refresh_iters=10509
+round 14: v=316938 gain=44.1307 refreshed=112 time=9.14 total=118.53 refresh_iters=11619
+round 15: v=240885 gain=43.3093 refreshed=32 time=2.66 total=121.19 refresh_iters=11936
+round 16: v=11964 gain=42.8152 refreshed=32 time=2.65 total=123.84 refresh_iters=12249
+round 17: v=313178 gain=42.5229 refreshed=16 time=1.29 total=125.13 refresh_iters=12404
+round 18: v=314133 gain=42.3269 refreshed=32 time=2.60 total=127.73 refresh_iters=12719
+round 19: v=311398 gain=42.2148 refreshed=16 time=1.29 total=129.02 refresh_iters=12875

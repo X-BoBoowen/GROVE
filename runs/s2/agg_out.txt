@@ -1,0 +1,57 @@
+== seeds (jlg - hyb paired, per seed) ==
+com-dblp.ungraph     r1001 hyb     39.1s tr     188263.1 | jlg    123.2s tr     188357.9 | diff       94.8 ±     17.1 z   5.5
+com-dblp.ungraph     r1002 hyb     32.2s tr     188264.5 | jlg    123.1s tr     188325.3 | diff       60.8 ±     13.5 z   4.5
+com-dblp.ungraph     r1003 hyb     41.3s tr     188258.8 | jlg    127.8s tr     188311.4 | diff       52.6 ±     15.7 z   3.4
+com-dblp.ungraph     r1004 hyb     37.9s tr     188288.8 | jlg    121.6s tr     188342.4 | diff       53.5 ±     14.9 z   3.6
+com-dblp.ungraph     MEAN hyb 37.6±3.4s jlg 123.9±2.3s speedup 3.29x  diff% 0.035±0.009
+com-amazon.ungraph   r1001 hyb    124.5s tr     221109.7 | jlg    177.4s tr     221426.8 | diff      317.1 ±     58.3 z   5.4
+com-amazon.ungraph   r1002 hyb    145.2s tr     221098.9 | jlg    202.3s tr     221671.0 | diff      572.1 ±     69.9 z   8.2
+com-amazon.ungraph   r1003 hyb    145.2s tr     221079.4 | jlg    189.2s tr     221648.4 | diff      569.0 ±     62.7 z   9.1
+com-amazon.ungraph   r1004 hyb    129.9s tr     221127.2 | jlg    189.7s tr     221607.2 | diff      480.0 ±     47.8 z  10.0
+com-amazon.ungraph   MEAN hyb 136.2±9.2s jlg 189.6±8.8s speedup 1.39x  diff% 0.219±0.047
+com-youtube.ungraph  r1001 hyb    153.4s tr    1091341.8 | jlg    571.4s tr    1091652.1 | diff      310.2 ±     38.4 z   8.1
+com-youtube.ungraph  r1002 hyb    133.1s tr    1091382.4 | jlg    523.2s tr    1091652.7 | diff      270.2 ±     41.0 z   6.6
+com-youtube.ungraph  r1003 hyb    187.3s tr    1091348.3 | jlg    624.5s tr    1091553.7 | diff      205.5 ±     40.8 z   5.0
+com-youtube.ungraph  r1004 hyb    150.1s tr    1091523.4 | jlg    622.8s tr    1091557.4 | diff       34.0 ±     48.0 z   0.7
+com-youtube.ungraph  MEAN hyb 156.0±19.6s jlg 585.5±41.8s speedup 3.75x  diff% 0.019±0.010
+roadNet-PA           r1001 hyb    356.8s tr    3238754.2 | jlg    802.7s tr    3278467.8 | diff    39713.6 ±   5984.7 z   6.6
+roadNet-PA           r1002 hyb    339.9s tr    3230801.1 | jlg    816.2s tr    3266845.6 | diff    36044.5 ±   5331.3 z   6.8
+roadNet-PA           r1003 hyb    336.3s tr    3225291.5 | jlg    765.0s tr    3261387.8 | diff    36096.3 ±   6270.7 z   5.8
+roadNet-PA           r1004 hyb    341.0s tr    3232727.1 | jlg    790.3s tr    3274823.9 | diff    42096.8 ±   5619.3 z   7.5
+roadNet-PA           MEAN hyb 343.5±7.9s jlg 793.6±18.8s speedup 2.31x  diff% 1.191±0.078
+== K sweep ==
+com-dblp.ungraph     k=10 hyb     24.3s tr 188730.6334 | jlg     49.2s tr 188754.4412 | diff       23.8 ±     12.2 z   1.9
+com-dblp.ungraph     k=50 hyb     92.7s tr 187201.724 | jlg    402.6s tr 187361.7002 | diff      160.0 ±     17.3 z   9.2
+com-youtube.ungraph  k=10 hyb     56.1s tr 1092676.616 | jlg    237.4s tr 1092742.153 | diff       65.5 ±     32.7 z   2.0
+com-youtube.ungraph  k=50 hyb    346.7s tr 1088571.816 | jlg   2260.3s tr 1088921.583 | diff      349.8 ±     43.5 z   8.0
+roadNet-PA           k=10 hyb    160.1s tr 3492605.846 | jlg    333.6s tr 3541180.863 | diff    48575.0 ±  10477.0 z   4.6
+roadNet-PA           k=50 hyb   1020.4s tr 2966207.361 | jlg   2590.4s tr 2984769.777 | diff    18562.4 ±   3365.7 z   5.5
+== d sweep (vs paired/hyb d64) ==
+com-dblp.ungraph     d=64 42.094s
+com-dblp.ungraph     d= 16     56.9s tr 188318.7283 | diff vs d64       50.7 ±      8.8 z   5.8
+com-dblp.ungraph     d= 32     46.3s tr 188272.3302 | diff vs d64        4.3 ±     10.4 z   0.4
+com-dblp.ungraph     d=128     38.7s tr 188263.3807 | diff vs d64       -4.7 ±      9.2 z  -0.5
+com-amazon.ungraph   d=64 143.443s
+com-youtube.ungraph  d=64 112.894s
+com-youtube.ungraph  d= 16    406.7s tr 1091660.828 | diff vs d64      254.9 ±     45.9 z   5.6
+com-youtube.ungraph  d= 32    240.8s tr 1091566.04 | diff vs d64      160.1 ±     33.3 z   4.8
+com-youtube.ungraph  d=128    115.6s tr 1091427.242 | diff vs d64       21.3 ±     39.5 z   0.5
+roadNet-PA           d=64 355.833s
+roadNet-PA           d= 16    314.8s tr 3281306.17 | diff vs d64    58297.4 ±   6725.2 z   8.7
+roadNet-PA           d= 32    324.2s tr 3245513.317 | diff vs d64    22504.6 ±   5046.5 z   4.5
+roadNet-PA           d=128    365.1s tr 3213923.17 | diff vs d64    -9085.6 ±   4940.2 z  -1.8
+== Forest / Schur vs GROVE (paired, method - GROVE) ==
+com-dblp.ungraph     forest1400  time    392.1s (GROVE 42.1s, x9.3) c=- tr 188821.6 diff     553.5 ±    30.3 z  18.3
+com-dblp.ungraph     forest5600  time   1591.4s (GROVE 42.1s, x37.8) c=- tr 188503.7 diff     235.7 ±    24.4 z   9.7
+com-dblp.ungraph     schur1400   time    419.0s (GROVE 42.1s, x10.0) c=131 tr 188390.6 diff     122.5 ±    14.2 z   8.6
+com-dblp.ungraph     schur5600   time    905.5s (GROVE 42.1s, x21.5) c=131 tr 188243.5 diff     -24.6 ±    11.5 z  -2.1
+com-amazon.ungraph   forest1400  time    475.2s (GROVE 143.4s, x3.3) c=- tr 222317.3 diff    1149.6 ±    74.5 z  15.4
+com-amazon.ungraph   schur1400   time    468.1s (GROVE 143.4s, x3.3) c=96 tr 221003.3 diff    -164.5 ±    47.6 z  -3.5
+com-youtube.ungraph  forest1400  time   1639.2s (GROVE 112.9s, x14.5) c=- tr 1094043.2 diff    2637.2 ±    81.4 z  32.4
+com-youtube.ungraph  schur1400   time   1666.0s (GROVE 112.9s, x14.8) c=534 tr 1091368.5 diff     -37.4 ±    44.8 z  -0.8
+web-Google           forest1400  time   1024.9s (GROVE 469.3s, x2.2) c=- tr 482329.8 diff    3247.3 ±   143.2 z  22.7
+web-Google           schur1400   time    994.9s (GROVE 469.3s, x2.1) c=417 tr 479384.9 diff     302.4 ±    83.5 z   3.6
+as-skitter           forest1400  time   2239.0s (GROVE 297.1s, x7.5) c=- tr 678054.8 diff    2001.9 ±    66.9 z  29.9
+as-skitter           schur1400   time   2879.5s (GROVE 297.1s, x9.7) c=965 tr 676487.6 diff     434.6 ±    29.5 z  14.7
+roadNet-PA           forest1400  time   2699.3s (GROVE 355.8s, x7.6) c=- tr 3205982.4 diff  -17026.3 ±  5791.1 z  -2.9
+roadNet-PA           schur1400   time   2461.1s (GROVE 355.8s, x6.9) c=8 tr 3199246.4 diff  -23762.4 ±  5838.4 z  -4.1

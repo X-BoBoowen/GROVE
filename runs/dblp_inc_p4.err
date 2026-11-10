@@ -1,0 +1,20 @@
+init: 42.68 s, pcg iters 2614
+inc round 1: v=234255 gain=1.77232e+10 refreshed=16 time=6.53 total=49.22
+inc round 2: v=167845 gain=1.53633e+10 refreshed=0 time=1.82 total=51.03
+inc round 3: v=306161 gain=1.43217e+10 refreshed=0 time=1.68 total=52.71
+inc round 4: v=279172 gain=1.37881e+10 refreshed=0 time=1.74 total=54.45
+inc round 5: v=282907 gain=1.36263e+10 refreshed=0 time=1.74 total=56.18
+inc round 6: v=253134 gain=1.34149e+10 refreshed=0 time=1.79 total=57.98
+inc round 7: v=99425 gain=1.22848e+10 refreshed=0 time=1.81 total=59.78
+inc round 8: v=70765 gain=1.11311e+10 refreshed=0 time=1.72 total=61.50
+inc round 9: v=260571 gain=1.06531e+10 refreshed=0 time=1.69 total=63.19
+inc round 10: v=200253 gain=1.01299e+10 refreshed=0 time=1.67 total=64.87
+inc round 11: v=200254 gain=7.70159e+09 refreshed=0 time=1.64 total=66.51
+inc round 12: v=70761 gain=7.2479e+09 refreshed=0 time=1.61 total=68.12
+inc round 13: v=283516 gain=6.66498e+09 refreshed=0 time=1.64 total=69.76
+inc round 14: v=70767 gain=6.41034e+09 refreshed=0 time=1.63 total=71.39
+inc round 15: v=70764 gain=5.03818e+09 refreshed=0 time=1.67 total=73.06
+inc round 16: v=70763 gain=2.7736e+09 refreshed=0 time=1.69 total=74.75
+inc round 17: v=316690 gain=5.81551e+09 refreshed=16 time=6.58 total=81.33
+inc round 18: v=315201 gain=5.56665e+09 refreshed=0 time=1.67 total=83.00
+inc round 19: v=316308 gain=5.15672e+09 refreshed=0 time=0.02 total=83.03

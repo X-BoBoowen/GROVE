@@ -1,0 +1,43 @@
+% Shared IEEE conference preamble.
+% The including file sets \fulltrue or \fullfalse before \input{preamble}.
+\usepackage[T1]{fontenc}
+\usepackage{mathptmx}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{booktabs,array,tabularx,graphicx,multirow}
+\usepackage{microtype,cite,url,enumitem,float,placeins,balance}
+\usepackage[table]{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc,decorations.pathmorphing}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepgfplotslibrary{groupplots}
+\usepackage[hidelinks]{hyperref}
+\hypersetup{pdftitle={GROVE: Reusing Solution Sketches for Current-Flow Group Selection},pdfauthor={Bowen Xue, Tianyi Chen, Xuanning Zeng, Qiao Qi, Yongtai Liu, Zifeng Peng}}
+\urlstyle{same}
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\DeclareMathOperator{\tr}{tr}
+\DeclareMathOperator{\diag}{diag}
+\DeclareMathOperator{\spec}{spec}
+\DeclareMathOperator{\CFCC}{CFCC}
+\newcommand{\R}{\mathbb R}
+\newcommand{\E}{\mathbb E}
+\newcommand{\Prob}{\mathbb P}
+\newcommand{\ind}{\mathbf 1}
+\newcommand{\OPT}{\mathrm{OPT}}
+\newcommand{\alg}{\textsc{GROVE}}
+\floatstyle{ruled}
+\newfloat{algorithm}{t}{loa}
+\floatname{algorithm}{Algorithm}
+\setlength{\emergencystretch}{1.8em}
+\setlength{\textfloatsep}{9pt plus 2pt minus 2pt}
+\setlength{\dbltextfloatsep}{10pt plus 2pt minus 2pt}
+\renewcommand{\topfraction}{0.92}
+\renewcommand{\dbltopfraction}{0.92}
+\renewcommand{\textfraction}{0.06}
+\setcounter{dbltopnumber}{3}
+\setcounter{topnumber}{3}
+\setcounter{totalnumber}{6}
+\allowdisplaybreaks[1]

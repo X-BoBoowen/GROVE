@@ -1,0 +1,10 @@
+approxchol: build 0.46 s, factor entries 1793886 (m=1049866)
+round 1: v=18654 est=475.949 time=5.24 total=5.70
+round 2: v=14911 est=261.571 time=5.04 total=10.75
+round 3: v=11964 est=215.76 time=5.24 total=15.98
+round 4: v=734 est=106.526 time=5.01 total=20.99
+round 5: v=304359 est=73.9566 time=5.13 total=26.12
+round 6: v=317000 est=76.308 time=5.36 total=31.49
+round 7: v=316929 est=72.3366 time=5.48 total=36.96
+round 8: v=316789 est=78.8654 time=5.98 total=42.94
+round 9: v=317025 est=84.5531 time=6.23 total=49.18

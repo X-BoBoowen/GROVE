@@ -1,0 +1,21 @@
+approxchol: build 0.11 s, factor entries 552602 (m=147878)
+init: 684.66 s, pcg iters 26
+inc round 1: v=10349 gain=423.598 refreshed=0 time=0.10 total=684.76
+inc round 2: v=538 gain=152.734 refreshed=0 time=0.10 total=684.86
+inc round 3: v=2591 gain=63.8727 refreshed=0 time=0.10 total=684.96
+inc round 4: v=8385 gain=42.8543 refreshed=0 time=0.11 total=685.07
+inc round 5: v=3407 gain=28.7834 refreshed=0 time=0.11 total=685.18
+inc round 6: v=9736 gain=21.509 refreshed=0 time=0.10 total=685.28
+inc round 7: v=8021 gain=17.2304 refreshed=0 time=0.10 total=685.39
+inc round 8: v=1239 gain=14.0171 refreshed=0 time=0.10 total=685.49
+inc round 9: v=10412 gain=11.5521 refreshed=0 time=0.10 total=685.59
+inc round 10: v=4727 gain=9.84751 refreshed=0 time=0.11 total=685.70
+inc round 11: v=5797 gain=8.50358 refreshed=0 time=0.11 total=685.81
+inc round 12: v=37445 gain=8.11413 refreshed=0 time=0.10 total=685.91
+inc round 13: v=25819 gain=8.07034 refreshed=0 time=0.11 total=686.03
+inc round 14: v=5111 gain=7.33793 refreshed=0 time=0.12 total=686.15
+inc round 15: v=57827 gain=7.28916 refreshed=0 time=0.12 total=686.26
+inc round 16: v=39226 gain=7.23153 refreshed=0 time=0.12 total=686.39
+inc round 17: v=44804 gain=7.02328 refreshed=0 time=0.13 total=686.51
+inc round 18: v=33505 gain=6.92589 refreshed=0 time=0.13 total=686.64
+inc round 19: v=62504 gain=6.902 refreshed=0 time=0.01 total=686.65

@@ -1,0 +1,3907 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+% These environments also work when the document class is changed to IEEEtran.
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\DeclareMathOperator{\tr}{tr}
+\DeclareMathOperator{\diag}{diag}
+\DeclareMathOperator{\spec}{spec}
+\newcommand{\R}{\mathbb R}
+\newcommand{\E}{\mathbb E}
+\newcommand{\Prob}{\mathbb P}
+\newcommand{\ind}{\mathbf 1}
+\title{Fractional Group Selection by Node Grounding\\Theory and Oracle Analysis: T1--T12}
+\author{Working theory notes}
+\date{November 8, 2026}
+\begin{document}
+\maketitle
+
+\section{Setting and admissible sets}
+Let $G=(V,E,w)$ be a finite undirected graph, with positive weights on
+its edges, $n=|V|$, Laplacian $L$, and $M=L+\sigma I$, $\sigma\geq0$.
+For $0<\beta<\infty$, write
+\[
+ A_S^{\beta}=M+\beta\diag(\ind_S),\qquad
+ A_S^{\infty}=M[V\setminus S,V\setminus S].
+\]
+The trace of any function of the empty matrix is zero. If $\sigma>0$,
+all sets are admissible, including the empty set. If $\sigma=0$, assume
+that $G$ is connected and fix a nonempty seed set $S_0$; the admissible
+lattice is $\{S:S_0\subseteq S\subseteq V\}$. The corresponding matrices
+of positive dimension are positive definite: their quadratic forms are
+the edge energy plus the diagonal penalty, and zero energy forces a
+constant vector, which the penalty (or the Dirichlet seed) forces to zero.
+For the seeded formulation the normalized gain is
+$\Phi(S_0)-\Phi(S_0\cup U)$, $U\subseteq V\setminus S_0$.
+
+A completely monotone (CM) function here is finite on $(0,\infty)$ and has
+the representation
+\begin{equation}\label{eq:cm}
+ f(x)=\int_{[0,\infty)}e^{-tx}\,\mu(dt),\qquad \mu\geq0.
+\end{equation}
+Set $a=\mu(\{0\})=\lim_{x\to\infty}f(x)$; the equality follows by dominated
+convergence using $e^{-t x_0}$ for any $x_0>0$.
+All objective values $\Phi_f^\beta(S)=\tr f(A_S^\beta)$ are finite on the
+admissible lattice. We use the diminishing-drop convention for
+supermodularity:
+\begin{equation}\label{eq:super}
+ \Phi(S)-\Phi(S\cup\{v\})\ \geq\
+ \Phi(T)-\Phi(T\cup\{v\}),\quad S\subseteq T,\ v\notin T.
+\end{equation}
+
+\section{T1: structural theorem}
+\begin{lemma}[One coupling for all grounding sets]\label{lem:coupling}
+There is a coupling, independent of the selected set, with killing times
+$\zeta_S$ such that $\zeta_{S\cup T}=\min(\zeta_S,\zeta_T)$.
+For soft grounding,
+\[
+ (e^{-tA_S^\beta})_{ij}=\Prob_i(X_t=j,\ t<\zeta_S),\quad t\geq0.
+\]
+For hard grounding the same identity holds after embedding
+$e^{-tA_S^\infty}$ into an $n\times n$ matrix by zeros in rows and
+columns in $S$, including at $t=0$.
+\end{lemma}
+\begin{proof}
+Let $X$ be the continuous-time walk on $V$ with jump rate $w_{ij}$ from
+$i$ to $j$, holding rate $d_i=\sum_j w_{ij}$, and generator $-L$.
+It exists for all time since the state space and all rates are finite;
+an isolated state has infinite holding time. Independently sample
+$E_0\sim\operatorname{Exp}(\sigma)$ (take $E_0=\infty$ if $\sigma=0$),
+and $E_v\sim\operatorname{Exp}(\beta)$ independently for every $v$.
+Define occupation times $\ell_v(t)=\int_0^t\ind_{\{X_u=v\}}du$ and
+\[
+ \kappa_v=\inf\{t:\ell_v(t)\geq E_v\},\qquad
+ \zeta_S=E_0\wedge\min_{v\in S}\kappa_v.
+\]
+These clocks run in local occupation time. In particular an unvisited
+vertex cannot kill the walk. The displayed minimum identity holds
+pathwise, simultaneously for all sets. Conditioning on the walk gives
+\[
+ \Prob(t<\zeta_S\mid X)=
+ e^{-\sigma t}\exp\left(-\beta\sum_{v\in S}\ell_v(t)\right).
+\]
+The exponential memoryless property implies that while at $i$ the
+additional killing rate is $\sigma+\beta\ind_S(i)$. The transient
+transition matrix $K_S(t)$ therefore has initial value $I$ and generator
+$Q_{ij}=w_{ij}$ for $i\ne j$, $Q_{ii}=-d_i-\sigma-\beta\ind_S(i)$.
+The Markov property and the first-step expansion give $K'_S(t)=K_S(t)Q$;
+uniqueness of this finite linear ODE yields $K_S(t)=e^{-tA_S^\beta}$.
+
+For hard grounding replace $\kappa_v$ by the hitting time
+$H_v=\inf\{t\geq0:X_t=v\}$ and keep the same $E_0$ and base walk.
+On $U=V\setminus S$ the transient rates are $w_{ij}$, $i,j\in U$, $i\ne j$,
+and diagonal $-d_i-\sigma$; jumps into $S$ cause absorption.
+Thus the transient generator is $-M[U,U]$. A start in $S$ has
+$\zeta_S=0$ and contributes zero even at $t=0$. A surviving walk cannot
+end in $S$. These facts give precisely the zero embedding and prove
+the identity for every $i,j$. All the constructions use one base walk
+and the same independent clocks for every set.
+\end{proof}
+\noindent Numerical check: \texttt{scripts/verify\_t1\_coupling.py}.
+
+\begin{theorem}[CM grounding traces]\label{thm:cm}
+For every CM $f$ and $\beta\in(0,\infty]$, $\Phi_f^\beta$ is
+nonincreasing and supermodular on the admissible lattice.
+For each admissible $S$ and $v\notin S$, the drop is strictly positive
+in the soft case exactly when $f$ is nonconstant, and in the hard case
+exactly when $f\not\equiv0$.
+The soft-to-hard limit is
+\begin{equation}\label{eq:hardlimit}
+ \lim_{\beta\to\infty}\Phi_f^\beta(S)
+ =\Phi_f^\infty(S)+|S|a.
+\end{equation}
+In particular, the two objectives agree in the limit when $f(\infty)=0$.
+\end{theorem}
+\begin{proof}
+Fix $i,t$ and one coupled outcome. Put
+$Z_S=\ind_{\{X_t=i\}}\ind_{\{t<\zeta_S\}}$ for the walk started at $i$.
+For $S\subseteq T$, $Z_S\geq Z_T$. Moreover, for the added vertex clock
+$\kappa_v$ (or hitting time in the hard case),
+\[
+ Z_S-Z_{S\cup\{v\}}
+ =\ind_{\{X_t=i\}}\ind_{\{t<\zeta_S\}}\ind_{\{\kappa_v\leq t\}}.
+\]
+Replacing $S$ by $T$ only decreases this product. Taking expectations
+and summing over all $i\in V$ proves monotonicity and
+\eqref{eq:super} for $h_S(t)=\tr e^{-tA_S^\beta}$, using the zero
+embedding in the hard case. This argument includes $t=0$: then the
+soft heat trace is $n$ and the hard heat trace is $n-|S|$.
+
+Diagonalizing each positive definite matrix and using Tonelli's theorem
+for the nonnegative scalar integrands gives
+\[
+ \Phi_f^\beta(S)=\int_{[0,\infty)}h_S(t)\,\mu(dt)
+ =\sum_i\int_{[0,\infty)}\E_i Z_S\,\mu(dt).
+\]
+The measure is sigma-finite, since $\mu([0,j])\leq e^j f(1)$.
+Every integral is finite by the finite spectral sum. Differences can
+therefore be taken, or equivalently Tonelli can be applied directly
+to the nonnegative drops. The pointwise drop inequalities integrate
+to the claimed inequalities without subtracting infinities.
+
+For strictness, start at $v\notin S$. The event of no jump before $t$
+and survival of base killing has probability $e^{-(d_v+\sigma)t}$.
+For soft grounding it contributes
+$e^{-(d_v+\sigma)t}(1-e^{-\beta t})>0$ to the heat-trace drop for
+every $t>0$. Thus any mass of $\mu$ on $(0,\infty)$ gives a strict drop;
+if there is no such mass $f=a$ and the soft objective is $na$.
+The representation shows that $f$ is constant exactly in this latter
+case. For hard grounding the no-jump event contributes
+$e^{-(d_v+\sigma)t}>0$, and the drop at $t=0$ is one. Hence every
+nonzero $\mu$ gives a strict drop; $\mu=0$ gives the zero objective.
+
+For the limit use common unit exponential variables and set
+$E_v^{\beta}=E_v^1/\beta$. For fixed $t>0$, the conditional survival
+factor converges to the indicator that no selected vertex has positive
+occupation time before $t$. Apart from a null event of a jump exactly
+at $t$, this is hard survival; a start in $S$ also has positive
+occupation time. Bounded convergence gives
+$h_S^\beta(t)\to h_S^\infty(t)$ for $t>0$.
+At $t=0$ the limit remains $n$, whereas the hard trace is $n-|S|$.
+Choose a fixed $\beta_0>0$. For $\beta\geq\beta_0$,
+$0\leq h_S^\beta(t)\leq h_S^{\beta_0}(t)$, an integrable bound by
+admissibility. Dominated convergence proves \eqref{eq:hardlimit},
+including $S=V$.
+\end{proof}
+\noindent Numerical check: \texttt{scripts/verify\_t1\_structure.py}.
+
+\begin{corollary}[Powers, heat, and current-flow closeness]\label{cor:instances}
+The theorem applies to $f(x)=x^{-s}$ for every $s>0$, to
+$f(x)=e^{-\tau x}$ for $\tau\geq0$, and to $(x+c)^{-1}$ for $c\geq0$.
+For a connected graph, $\sigma=0$, and $\varnothing\ne S\subsetneq V$,
+the group current-flow closeness is
+$\operatorname{CFCC}(S)=n/\tr L_{-S}^{-1}$.
+Thus the reciprocal-CFCC supermodularity of Li et al.~\cite{li2019}
+is the hard-grounding $s=1$ case.
+\end{corollary}
+\begin{proof}
+The positive representations are, respectively,
+\[
+ x^{-s}=\frac1{\Gamma(s)}\int_0^\infty t^{s-1}e^{-tx}dt,
+ \qquad e^{-\tau x}=\int e^{-tx}\delta_\tau(dt),
+ \qquad (x+c)^{-1}=\int_0^\infty e^{-tx}e^{-ct}dt.
+\]
+The first follows by $u=tx$ in the defining Gamma integral, and the
+third is an elementary exponential integral. Apply Theorem~\ref{thm:cm}.
+For the electrical identity, ground $S$ and inject a unit current at
+$u\notin S$. Kirchhoff's equations on $U=V\setminus S$ are
+$L[U,U]p=e_u$. Thus the source voltage, equal to its effective
+resistance to $S$, is $(L[U,U]^{-1})_{uu}$. Summing these voltages
+and using the definition of group current-flow closeness gives the
+formula. Multiplication by $1/n$ preserves supermodularity of the
+reciprocal objective.
+\end{proof}
+\noindent Numerical check: \texttt{scripts/verify\_t1\_corollaries.py}.
+
+\begin{proposition}[Edge addition has a different structure]\label{prop:edge}
+Even for $f(x)=x^{-1}$, edge addition can violate supermodularity on a
+connected five-vertex graph.
+\end{proposition}
+\begin{proof}
+Take the unit-weight path $2-1-0-4-3$, $\sigma=1/10$, and candidate
+unit edges $e=\{0,2\}$, $g=\{0,3\}$. Write
+$H(B)=\tr(L+\sum_{b\in B}b_b b_b^\top+I/10)^{-1}$, where
+$b_{\{u,v\}}=e_u-e_v$. Exact rational inversion gives
+\[
+ H(\varnothing)=\frac{966250}{72181},\quad
+ H(\{e\})=H(\{g\})=\frac{2486050}{197501},\quad
+ H(\{e,g\})=\frac{204350}{17391}.
+\]
+These fractions are certified by rational Gaussian elimination in the
+accompanying script, which also checks every entry of $AA^{-1}=I$.
+Their mixed difference is exactly
+\[
+ H(\{e,g\})-H(\{e\})-H(\{g\})+H(\varnothing)
+ =-\frac{9866618000}{257984349711}<0.
+\]
+For grounding the off-diagonal transition rates remain fixed and
+only killing changes. Adding an edge instead changes two transition
+rates, hence changes the base path and its return event. Additional
+jumps cannot be represented by deleting trajectories with independent
+vertex killing clocks. Algebraically the edge direction $e_u-e_v$
+has both signs, unlike the grounding direction $e_v$; for $R=A^{-1}$,
+direct differentiation gives
+$\partial_x\partial_y\tr(A+xbb^\top+ycc^\top)^{-1}|_{0}
+=2(b^\top Rc)(b^\top R^2c)$, which has no fixed sign.
+Indeed $\partial_x\tr R=-b^\top R^2b$ and
+$\partial_yR=-Rcc^\top R$ give the displayed derivative by the product
+rule. This identifies exactly the unavailable step in the coupling
+proof for edge addition.
+\end{proof}
+\noindent Numerical check: \texttt{scripts/verify\_t1\_edge\_counterexample.py}.
+
+\section{T2: computational hardness}
+\begin{lemma}[Cubic vertex-cover gap]\label{lem:cover}
+Let $G$ be a connected unit-weight $3$-regular graph, let
+$\varnothing\ne S\subsetneq V$, put $r=n-|S|$, and let $e_U$ count the
+edges induced by $U=V\setminus S$. For every $s>0$ and $\sigma\geq0$,
+\begin{equation}\label{eq:covergap}
+ \tr (L_{-S}+\sigma I)^{-s}
+ \geq r(3+\sigma)^{-s}+\delta_{s,\sigma}e_U,
+ \qquad \delta_{s,\sigma}=\frac{s(s+1)}{(6+\sigma)^{s+2}}>0.
+\end{equation}
+Equality with the baseline $r(3+\sigma)^{-s}$ holds exactly when
+$S$ is a vertex cover. Also $\lambda_{\min}(L_{-S}+\sigma I)\geq n^{-2}$.
+\end{lemma}
+\begin{proof}
+Write $C=(3+\sigma)I-B_U$, where $B_U$ is the induced adjacency
+matrix. The eigenvalues of $C$ lie in $(0,6+\sigma]$: positive
+definiteness follows from the nonempty Dirichlet boundary, and
+$\|B_U\|_2\leq3$. For $f(x)=x^{-s}$, throughout this interval
+$f''(x)\geq\delta_{s,\sigma}$. Taylor's formula with integral remainder
+therefore gives
+\[
+ f(x)\geq f(b)+f'(b)(x-b)+\tfrac12\delta_{s,\sigma}(x-b)^2,
+ \qquad b=3+\sigma.
+\]
+Sum this inequality over the eigenvalues. The linear terms vanish
+because $\tr C=rb$, and the sum of squared deviations is
+$\tr B_U^2=2e_U$, proving \eqref{eq:covergap}. If $e_U=0$, $C=bI$
+gives equality; if $e_U\geq1$ the excess is at least
+$\delta_{s,\sigma}$. The equivalence with a vertex cover follows from
+the definition.
+
+For the lower eigenvalue bound, extend $x\in\R^U$ by zeros on $S$.
+For each $u\in U$ choose a simple path from $u$ to $S$, of length at
+most $n-1$. Cauchy--Schwarz bounds $|x_u|^2$ by $n$ times the sum of
+edge differences squared along that path, hence by $n x^\top Lx$.
+Summing over at most $n$ vertices yields
+$\|x\|^2\leq n^2x^\top Lx\leq n^2x^\top(L+\sigma I)x$.
+The Rayleigh quotient proves the asserted eigenvalue bound.
+\end{proof}
+\noindent Numerical check: \texttt{scripts/verify\_t2\_cover\_gap.py}.
+
+\begin{lemma}[Uniform finite-penalty approximation]\label{lem:softlimit}
+Under the hypotheses of Lemma~\ref{lem:cover}, for $0<s<1$ and $B>0$,
+\begin{equation}\label{eq:softbound}
+ 0\leq \tr(L+\sigma I+B\diag(\ind_S))^{-s}
+       -\tr(L_{-S}+\sigma I)^{-s}
+ \leq n\left(\frac{1+9n^4}{B}\right)^s.
+\end{equation}
+\end{lemma}
+\begin{proof}
+Order the vertices as $U,S$ and write
+\[
+ L+\sigma I=\begin{pmatrix}C&D\\D^\top&E\end{pmatrix},\quad
+ F=E+BI-D^\top C^{-1}D,\quad
+ W=\begin{pmatrix}-C^{-1}D\\I\end{pmatrix}.
+\]
+Because $L+\sigma I\succeq0$ and $C\succ0$, its Schur complement is
+positive semidefinite. For completeness, its quadratic form at $y$
+is the quadratic form of $L+\sigma I$ at $(-C^{-1}Dy,y)$.
+Consequently $F\succeq BI$. Block multiplication verifies
+\[
+ (L+\sigma I+B\diag(\ind_S))^{-1}
+ =J+WF^{-1}W^\top,\qquad J=\begin{pmatrix}C^{-1}&0\\0&0\end{pmatrix}.
+\]
+Thus $0\preceq A^{-1}-J\preceq\epsilon I$, where
+\[
+ \epsilon=\frac{1+\|C^{-1}D\|_2^2}{B}
+ \leq\frac{1+9n^4}{B}.
+\]
+Here $\|C^{-1}\|_2\leq n^2$ by Lemma~\ref{lem:cover}, and
+$\|D\|_2\leq3$ since it is a submatrix of the cubic adjacency matrix.
+The ordered eigenvalues satisfy
+$\lambda_j(J)\leq\lambda_j(A^{-1})\leq\lambda_j(J)+\epsilon$
+by the min--max principle. For $x\geq0$ and $0<s<1$,
+$0\leq(x+\epsilon)^s-x^s\leq\epsilon^s$:
+the difference is decreasing in $x>0$, since $s-1<0$, and its
+maximum is attained at $x=0$. Apply this scalar inequality to the
+matched eigenvalues and sum all $n$ terms, including the $|S|$ zeros
+of $J$. Since $\tr J^s=\tr C^{-s}$, this proves \eqref{eq:softbound}.
+\end{proof}
+\noindent Numerical check: \texttt{scripts/verify\_t2\_soft\_limit.py}.
+
+\begin{theorem}[Hardness for fixed fractional exponent]\label{thm:hardness}
+For each fixed $s\in(0,1)$, finding an exact minimizing set of total
+cardinality $k$ is NP-hard in each of the following regimes:
+\begin{enumerate}
+\item hard grounding on connected unit-weight cubic graphs, with any
+fixed $\sigma\geq0$;
+\item soft grounding on the same graphs, with any fixed $\sigma\geq0$
+and an input integer penalty $\beta$ of polynomial magnitude;
+\item soft grounding with $\sigma=0$ and any fixed positive rational
+penalty $\beta_0$, on connected rationally weighted cubic graphs.
+\end{enumerate}
+For $\sigma=0$, the specified-singleton-seed formulation is also
+NP-hard under polynomial-time Turing reductions.
+\end{theorem}
+\begin{proof}
+Use vertex cover on connected $3$-regular graphs, the NP-complete
+source problem used in Section 4 of Li et al.~\cite{li2019}.
+The nontrivial instances have $1\leq k<n$. A cover of size at most
+$k$ exists exactly when one of size $k$ exists, since a cover can
+be enlarged. Lemma~\ref{lem:cover} proves that whenever a size-$k$
+cover exists, every hard-objective minimizer is a cover. An optimal-set
+oracle therefore decides vertex cover by returning a set whose edge
+coverage can be checked in polynomial time. This proves item 1
+without needing an exact representation of a real objective threshold.
+
+For item 2, write $\delta=\delta_{s,\sigma}$. Fix integers
+$p>1/s$ and $C>0$ such that $C^{-s}\leq\delta/8$, and choose
+\[
+ B=C(1+9n^4)n^p.
+\]
+These integers depend only on the fixed parameters $s,\sigma$.
+The chosen $B$ has polynomial magnitude and $O(\log n)$ bits.
+By Lemma~\ref{lem:softlimit} the error for every nonempty proper
+set is at most
+$nC^{-s}n^{-ps}\leq\delta/8$. Put $b=(n-k)(3+\sigma)^{-s}$.
+A cover has soft value in $[b,b+\delta/8]$, whereas a noncover
+has soft value at least $b+\delta$. Every soft minimizer is therefore
+a cover whenever one exists. Again check the returned set's edge
+coverage rather than comparing real-valued oracle outputs.
+
+For item 3 use the same construction at $\sigma=0$, and replace
+every unit edge weight by $c=\beta_0/B$. The new Laplacian is $cL$,
+and exactly
+\[
+ cL+\beta_0\diag(\ind_S)=c(L+B\diag(\ind_S)),\qquad
+ \tr(cL+\beta_0\diag(\ind_S))^{-s}
+ =c^{-s}\tr(L+B\diag(\ind_S))^{-s}.
+\]
+The positive common factor preserves all minimizers. The rational
+weights have $O(\log n)$ bits, and the support remains connected and
+cubic. This is a polynomial reduction with fixed finite $\beta_0$.
+
+Finally suppose the oracle requires a specified nonempty seed at
+$\sigma=0$. Make one call for each singleton seed $\{v\}$ with the
+same total cardinality $k$ (or $k-1$ additional choices).
+If a size-$k$ cover exists, one such seed belongs to it, and the
+separation arguments above ensure that the corresponding oracle
+returns a cover. If no cover exists, no returned set passes the edge
+coverage test. These $n$ calls are a polynomial-time Turing reduction.
+\end{proof}
+\noindent Numerical check: \texttt{scripts/verify\_t2\_hardness.py}.
+
+\begin{corollary}[Strictly convex hard-grounding objectives]\label{cor:hardextended}
+For a fixed $C^2$ function $f$ with $f''(x)\geq c_f>0$ on
+$(0,6+\sigma]$, the cubic-graph objective obeys
+\[
+ \tr f(L_{-S}+\sigma I)\geq(n-|S|)f(3+\sigma)+c_f e_U.
+\]
+Equality with the baseline characterizes vertex covers. Consequently,
+hard-grounding optimal-set selection is NP-hard for every fixed $s>0$
+with $f(x)=x^{-s}$, and for every fixed $\tau>0$ with
+$f(x)=e^{-\tau x}$, at any fixed $\sigma\geq0$.
+The singleton-seed qualification in Theorem~\ref{thm:hardness} applies.
+\end{corollary}
+\begin{proof}
+Repeat the Taylor inequality in Lemma~\ref{lem:cover} with $c_f$:
+the linear terms sum to zero and the quadratic terms sum to
+$c_f\tr B_U^2/2=c_f e_U$. A cover has $B_U=0$ and achieves the
+baseline, whereas a noncover exceeds it by at least $c_f$.
+Thus an optimal-set oracle decides the connected cubic vertex-cover
+problem exactly as in Theorem~\ref{thm:hardness}. Powers use
+$c_f=s(s+1)(6+\sigma)^{-s-2}$ for every $s>0$; heat uses
+$c_f=\tau^2e^{-\tau(6+\sigma)}>0$. Checking returned sets avoids
+real threshold encoding. The same singleton-seed calls prove the
+seeded assertion. At $\tau=0$ the fixed-cardinality heat objective
+is constant, so the heat statement requires $\tau>0$.
+\end{proof}
+\noindent Numerical check: \texttt{scripts/verify\_t2\_extended.py}.
+
+\section{T3: scalar marginal oracles}
+For this section let $A\succ0$ be the current matrix, let $b=e_v$ be
+an available candidate in its coordinates, and put
+\[
+ A_u=A+ubb^\top,\quad C=A[-v,-v],\quad
+ R_t=(A+tI)^{-1},\quad r_j(t)=b^\top R_t^j b\quad(j\geq1).
+\]
+For a finite penalty $\beta$, let $B=A_\beta$; for hard grounding let
+$B=C$. Write $\Delta_f=\tr f(A)-\tr f(B)$ and
+$\Delta_s=\Delta_{x^{-s}}$. These results apply to an already
+soft-grounded matrix or to the ungrounded coordinates of an already
+hard-grounded matrix. They hold for general positive definite $A$.
+
+\begin{lemma}[Scalar resolvent marginal]\label{lem:resolvent}
+For $t\geq0$, $r_2(t)=-r'_1(t)$ and
+\begin{equation}\label{eq:qone}
+ q_1(t):=\tr(A+tI)^{-1}-\tr(B+tI)^{-1}
+ =\begin{cases}
+ \displaystyle\frac{\beta r_2(t)}{1+\beta r_1(t)},&\beta<\infty,\\[6pt]
+ \displaystyle\frac{r_2(t)}{r_1(t)},&\beta=\infty.
+ \end{cases}
+\end{equation}
+Consequently, for $0<s<1$,
+\begin{equation}\label{eq:fractionaloracle}
+ \Delta_s=\frac{\sin(\pi s)}{\pi}
+              \int_0^\infty t^{-s}q_1(t)dt,
+ \qquad \Delta_1=q_1(0).
+\end{equation}
+\end{lemma}
+\begin{proof}
+Differentiating $(A+tI)R_t=I$ gives $R'_t=-R_t^2$, hence
+$r'_1=-r_2$. For the finite update, direct multiplication verifies
+the Sherman--Morrison identity
+\[
+ (A+tI+\beta bb^\top)^{-1}
+ =R_t-\frac{\beta R_tbb^\top R_t}{1+\beta b^\top R_tb}.
+\]
+Taking traces gives the first formula. For hard grounding reorder
+the candidate first and write $R_t$ in blocks on $\{v\},U$. The
+block inverse identity gives
+\[
+ (C+tI)^{-1}=(R_t)_{UU}
+       -\frac{(R_t)_{Uv}(R_t)_{vU}}{(R_t)_{vv}}.
+\]
+Its trace difference from $R_t$ is
+$r_1+\|(R_t)_{Uv}\|^2/r_1=r_2/r_1$; the formula also holds when
+$U$ is empty. The scalar identity
+\[
+ x^{-s}=\frac{\sin(\pi s)}{\pi}
+           \int_0^\infty\frac{t^{-s}}{x+t}dt
+\]
+follows from $t=xu$ and the beta integral
+$\int_0^\infty u^{-s}/(1+u)du=\Gamma(s)\Gamma(1-s)=\pi/\sin(\pi s)$.
+Diagonalization gives the corresponding trace identity. The integrals
+for each trace are finite, so subtracting them and using
+\eqref{eq:qone} proves \eqref{eq:fractionaloracle}. At $s=1$ use
+the trace difference at $t=0$ directly.
+\end{proof}
+\noindent Numerical check: \texttt{scripts/verify\_t3\_resolvent.py}.
+
+\begin{proposition}[Positive scalar representation for all powers]\label{prop:allpowers}
+Define, for integers $m\geq1$,
+\[
+ q_m(t)=\frac{(-1)^{m-1}}{(m-1)!}\frac{d^{m-1}}{dt^{m-1}}q_1(t).
+\]
+Then $q_m(t)=\tr(A+tI)^{-m}-\tr(B+tI)^{-m}\geq0$.
+For any $s>0$ and any integer $m>s$,
+\begin{equation}\label{eq:allpowers}
+ \Delta_s=\frac{\Gamma(m)}{\Gamma(s)\Gamma(m-s)}
+       \int_0^\infty t^{m-s-1}q_m(t)dt.
+\end{equation}
+For integer $s=m$ one can instead use $\Delta_m=q_m(0)$.
+Each $q_m(t)$ is determined by the scalar moments
+$r_1(t),\ldots,r_{m+1}(t)$ from the original matrix $A$.
+\end{proposition}
+\begin{proof}
+Repeated differentiation of the shifted inverse gives
+$d^{m-1}(A+tI)^{-1}/dt^{m-1}=(-1)^{m-1}(m-1)!(A+tI)^{-m}$,
+which proves the trace identity. For a soft update the ordered
+eigenvalues of $A_\beta$ are at least those of $A$, by the min--max
+principle. For a hard update, writing $d=\dim A$, interlacing gives
+$\lambda_i(A)\leq\lambda_i(C)$ for $1\leq i\leq d-1$.
+Because $x\mapsto(x+t)^{-m}$ decreases, in the soft case every matched
+eigenvalue contribution is nonnegative; in the hard case this also
+leaves the positive contribution of $\lambda_d(A)$. This proves
+$q_m\geq0$.
+
+The substitution $t=xu$ in the beta integral gives
+\[
+ \int_0^\infty t^{m-s-1}(x+t)^{-m}dt
+ =x^{-s}\frac{\Gamma(m-s)\Gamma(s)}{\Gamma(m)}.
+\]
+Apply it to the finite eigenvalue sums and subtract. The integral
+of the difference is finite: near zero its integrand is bounded
+by a constant times $t^{m-s-1}$, and near infinity by a constant
+times $t^{-s-1}$. This proves \eqref{eq:allpowers} as a positive
+representation, including $s\geq1$.
+
+Here is an explicit scalar evaluation rule. Put
+\[
+ F(t)=\begin{cases}1+\beta r_1(t),&\beta<\infty,\\r_1(t),&\beta=\infty.
+ \end{cases}
+ \qquad q_1(t)=-\frac{d}{dt}\log F(t).
+\]
+The latter identity follows immediately from \eqref{eq:qone} and
+$r'_1=-r_2$. In a neighborhood of $z=0$,
+\[
+ r_1(t+z)=\sum_{j\geq0}(-1)^j r_{j+1}(t)z^j,
+ \quad F(t+z)=\sum_{j\geq0}f_jz^j,\quad
+ \log F(t+z)=g_0+\sum_{j\geq1}g_jz^j.
+\]
+The resolvent series converges for $|z|<\lambda_{\min}(A)+t$;
+$F(t)>0$ also ensures a local logarithm. For soft grounding
+$f_0=1+\beta r_1$ and $f_j=\beta(-1)^jr_{j+1}$ for $j\geq1$;
+for hard grounding $f_j=(-1)^jr_{j+1}$ for all $j\geq0$.
+Equating coefficients in $F'=F(\log F)'$ gives, successively,
+\begin{equation}\label{eq:logrecurrence}
+ g_k=\frac{kf_k-\sum_{j=1}^{k-1}jg_jf_{k-j}}{kf_0},\qquad
+ q_m(t)=(-1)^m m g_m.
+\end{equation}
+Thus moments through order $m+1$ suffice. For example,
+\[
+ q_2(t)=\begin{cases}
+ \displaystyle\frac{2\beta r_3}{1+\beta r_1}
+       -\frac{\beta^2r_2^2}{(1+\beta r_1)^2},&\beta<\infty,\\[6pt]
+ \displaystyle\frac{2r_3}{r_1}-\frac{r_2^2}{r_1^2},&\beta=\infty.
+ \end{cases}
+\]
+Its nonnegativity, and that of every higher-order expression, follows
+from the trace/interlacing argument above.
+\end{proof}
+\noindent Numerical check: \texttt{scripts/verify\_t3\_powers.py}.
+
+\begin{proposition}[Duhamel and positive penalty integrals]\label{prop:duhamel}
+For $\tau>0$ and $0<\beta\leq\infty$,
+\begin{equation}\label{eq:heatpenalty}
+ \Delta_{e^{-\tau x}}=\tau\int_0^\beta
+                b^\top e^{-\tau A_u}b\,du.
+\end{equation}
+For every $s>0$ there is also the representation
+\begin{align}
+ \Delta_s
+ &=s\int_0^\beta b^\top A_u^{-(s+1)}b\,du\label{eq:powerpenalty}\\
+ &=\frac1{\Gamma(s)}\int_0^\infty t^s
+                \int_0^\beta b^\top e^{-tA_u}b\,du\,dt.\notag
+\end{align}
+All integrands are nonnegative. At $\tau=0$ the soft heat drop is zero
+and the hard heat drop is one.
+\end{proposition}
+\begin{proof}
+Differentiate the finite-dimensional evolution equation for
+$e^{-\tau A_u}$ with respect to $u$. Variation of constants yields
+the Duhamel identity
+\[
+ \frac{\partial}{\partial u}e^{-\tau A_u}
+ =-\int_0^\tau e^{-(\tau-r)A_u}bb^\top e^{-rA_u}\,dr.
+\]
+Taking traces and using cyclicity combines the two exponentials,
+so the derivative of the trace is $-\tau b^\top e^{-\tau A_u}b$.
+Integrate from $0$ to $\beta<\infty$ to obtain \eqref{eq:heatpenalty}.
+The Laplace representation of powers, followed by Tonelli applied
+to this nonnegative heat drop, gives the double integral in
+\eqref{eq:powerpenalty}. Integrating in $t$ first gives
+\[
+ \frac1{\Gamma(s)}\int_0^\infty t^s e^{-tA_u}dt
+ =\frac{\Gamma(s+1)}{\Gamma(s)}A_u^{-(s+1)}
+ =sA_u^{-(s+1)}.
+\]
+Thus \eqref{eq:powerpenalty} holds. The values are finite because
+the two original traces are finite.
+
+To justify the hard endpoint even for general positive definite $A$,
+interlacing for a rank-one update bounds the first $d-1$ increasing
+eigenvalues of $A_u$ between those of $A$; the last eigenvalue tends
+to infinity, with $\lambda_d(A_u)/u\to1$, by the trace identity.
+The determinant is affine in the candidate diagonal entry, giving
+\[
+ \frac{\det(A_u-zI)}{u}
+ =\frac{\det(A-zI)}{u}+\det(C-zI)\longrightarrow\det(C-zI).
+\]
+Every convergent subsequence of the bounded eigenvalues must
+therefore have exactly the eigenvalue multiset of $C$: the diverging
+factor divided by $u$ tends to one, so the products of the remaining
+factors converge to the characteristic polynomial of $C$.
+It follows that the first $d-1$ eigenvalues converge to those of
+$C$, in order. Both $x^{-s}$ and $e^{-\tau x}$ vanish at infinity,
+so their trace limits are the corresponding trace of $C$.
+Monotone convergence in the nonnegative penalty integrals proves
+the formulas with $\beta=\infty$. At $\tau=0$ the traces count
+dimensions, giving the two asserted endpoint values directly.
+\end{proof}
+\noindent Numerical check: \texttt{scripts/verify\_t3\_duhamel.py}.
+
+\begin{theorem}[One Lanczos run for all shifts]\label{thm:lanczos}
+Run $h$ steps of Lanczos on $A$ starting at the unit vector $b=e_v$.
+In exact arithmetic write its orthonormal basis and tridiagonal as
+\[
+ AV_h=V_hT_h+\gamma_h v_{h+1}e_h^\top,\qquad V_he_1=b.
+\]
+At termination use $\gamma_h=0$. For every $t\geq0$, the shifted
+Galerkin vector and its scalar quantities are
+\begin{align}
+ y_h(t)&=V_h(T_h+tI)^{-1}e_1,\notag\\
+ \widehat r_1(t)&=e_1^\top(T_h+tI)^{-1}e_1,\label{eq:projectedmoments}\\
+ \widehat r_2(t)&=e_1^\top(T_h+tI)^{-2}e_1=\|y_h(t)\|^2,
+ \qquad -\widehat r'_1(t)=\widehat r_2(t),\notag\\
+ \widehat r_j(t)&=e_1^\top(T_h+tI)^{-j}e_1\quad(j\geq1).\notag
+\end{align}
+If $\underline a\leq\lambda_{\min}(A)$ is positive, define
+\[
+ \rho_h(t)=\gamma_h|e_h^\top(T_h+tI)^{-1}e_1|,\qquad
+ \epsilon_h(t)=\frac{\rho_h(t)}{\underline a+t}.
+\]
+Then
+\begin{align}
+ 0\leq r_1-\widehat r_1&\leq\frac{\rho_h^2}{\underline a+t},\label{eq:r1bound}\\
+ \bigl(\max\{0,\sqrt{\widehat r_2}-\epsilon_h\}\bigr)^2
+ \leq r_2&\leq(\sqrt{\widehat r_2}+\epsilon_h)^2.\label{eq:r2bound}
+\end{align}
+At invariant-subspace termination all the projected moments are exact.
+For any of the power or heat functions above, the projected marginal is
+\begin{equation}\label{eq:reducedmarginal}
+ \widehat\Delta_f=
+ \begin{cases}
+ \tr f(T_h)-\tr f(T_h+\beta e_1e_1^\top),&\beta<\infty,\\
+ \tr f(T_h)-\tr f(T_h[2:h,2:h]),&\beta=\infty.
+ \end{cases}
+\end{equation}
+It is computable entirely from the same $T_h$ and is exact at
+invariant-subspace termination.
+\end{theorem}
+\begin{proof}
+Binomial expansion, applied in both directions, gives
+$\mathcal K_h(A+tI,b)=\mathcal K_h(A,b)$.
+Projecting the shifted equation onto $V_h$ yields the stated Galerkin
+vector. Orthonormality and $V_he_1=b$ give the first two scalar
+identities; differentiating the small inverse gives their derivative
+identity. Higher projected moments are scalar matrix functions of the
+same tridiagonal; if $T_h=Q\diag(\theta_i)Q^\top$, then
+\[
+ \widehat r_j(t)=\sum_{i=1}^h Q_{1i}^2(\theta_i+t)^{-j}.
+\]
+Thus all shifts and all needed derivative moments share one run.
+
+The Lanczos relation gives the residual
+$z_h=b-(A+tI)y_h=-\gamma_hv_{h+1}e_h^\top(T_h+tI)^{-1}e_1$,
+whose norm is $\rho_h$. If $x=(A+tI)^{-1}b$, then
+$\|x-y_h\|\leq\rho_h/(\underline a+t)=\epsilon_h$.
+Galerkin orthogonality gives $y_h^\top z_h=0$ and hence
+\[
+ r_1-\widehat r_1
+ =(x-y_h)^\top(A+tI)(x-y_h)
+ =z_h^\top(A+tI)^{-1}z_h.
+\]
+This proves \eqref{eq:r1bound}. The triangle and reverse-triangle
+inequalities applied to $x=y_h+(x-y_h)$ give \eqref{eq:r2bound}.
+
+For penalty parameter $u$ the projected matrix is exactly
+$V_h^\top A_uV_h=T_h+ue_1e_1^\top$. Applying
+Lemmas/Propositions~\ref{lem:resolvent}--\ref{prop:duhamel} to this
+positive definite reduced matrix gives its scalar integral formulas;
+they equal \eqref{eq:reducedmarginal}. In particular, the hard
+projection deletes the first reduced coordinate, not a coordinate of
+an independently generated basis.
+
+When $\gamma_h=0$, the Krylov subspace is invariant. Since $A$ is
+symmetric, its orthogonal complement is also invariant. In a completed
+orthonormal basis,
+\[
+ A=T_h\oplus A_\perp,\qquad
+ A_u=(T_h+ue_1e_1^\top)\oplus A_\perp.
+\]
+The vector $b$ lies entirely in the first block, so all its scalar
+moments equal the reduced moments. For hard grounding, restriction
+to $b^\perp$ is orthogonally similar to
+$T_h[2:h,2:h]\oplus A_\perp$. In either update the complement's
+trace cancels. This proves exactness of \eqref{eq:reducedmarginal},
+including early breakdown and $h=1$.
+
+In exact arithmetic the three-term run uses $h$ large sparse
+matrix--vector products and $O(dh)$ vector work. For $q$ shifts,
+tridiagonal solves and vector norms compute
+$\widehat r_1,\widehat r_2,\rho_h$ in $O(qh)$ additional work.
+Moments through $m+1$ can be obtained by repeated tridiagonal solves
+in $O(qmh)$, followed by $O(qm^2)$ work in
+\eqref{eq:logrecurrence}. Power/heat evaluations in
+\eqref{eq:reducedmarginal} or the penalty integrals involve only small
+matrices and require no further large-matrix products.
+\end{proof}
+\noindent Numerical check: \texttt{scripts/verify\_t3\_lanczos.py}.
+
+\section{T4: certified marginal bounds and fixed positive quadrature}
+Throughout this section $\|b\|=1$, $0<a<\lambda_{\min}(A)$,
+$\lambda_{\max}(A)\leq B$, $f$ is CM, $f_\infty=f(\infty)$,
+and $g=-f'$. The function $g$ is CM: its Laplace measure is
+$t\mu(dt)$, and it is finite at every positive argument.
+
+\begin{theorem}[Shared-penalty Gauss--Radau certificate]\label{thm:radau}
+Let $T_h,\gamma_h$ be obtained by one Lanczos run from $b$.
+Set $J_h(u)=T_h+ue_1e_1^\top$. If $\gamma_h>0$, define
+\begin{equation}\label{eq:radau}
+ H_{h+1}(u)=
+ \begin{pmatrix}
+ J_h(u)&\gamma_h e_h\\
+ \gamma_h e_h^\top&a+\gamma_h^2 e_h^\top(J_h(u)-aI)^{-1}e_h
+ \end{pmatrix}.
+\end{equation}
+At invariant termination set $H=J$ and use the exact value.
+For every $u\geq0$,
+\[
+ G_h(u):=e_1^\top g(J_h(u))e_1
+ \leq F(u):=b^\top g(A_u)b
+ \leq U_h(u):=e_1^\top g(H_{h+1}(u))e_1.
+\]
+For finite $\beta$, integrating from $0$ to $\beta$ gives a marginal
+interval. For hard grounding the interval is
+\[
+ f_\infty+\int_0^\infty G_h(u)du
+ \ \leq\Delta_f\leq\
+ f_\infty+\int_0^\infty U_h(u)du.
+\]
+All endpoints are finite. The lower endpoint equals the reduced trace
+drop in \eqref{eq:reducedmarginal}. Put
+$d=b^\top Ab$ and $v=\|Ab-db\|^2$. For $K+d\geq2a$, a common bound
+on the exact and Radau upper tails is
+\begin{equation}\label{eq:penaltytail}
+ \int_K^\infty F(u)du,\quad\int_K^\infty U_h(u)du
+ \ \leq\frac{4v g(a)}{d+K}
+                 +2\bigl(f((d+K)/2)-f_\infty\bigr).
+\end{equation}
+\end{theorem}
+\begin{proof}
+The spaces $\mathcal K_h(A_u,b)$ and $\mathcal K_h(A,b)$ agree:
+successively expanding $(A+ubb^\top)^j b$ gives $A^jb$ plus a
+combination of earlier Krylov vectors, and the reverse inclusion
+follows by replacing $u$ by $-u$. More precisely the same Lanczos
+recurrence works with only the first diagonal changed by $u$, since
+$b^\top v_j=0$ for $j>1$. Its residual coefficient is still $\gamma_h$.
+
+Let $\nu_u$ be the spectral probability measure of $(A_u,b)$.
+The $h$-node rule defined by $J_h(u)$ has positive weights and is exact
+through degree $2h-1$. One direct verification extends the Lanczos
+tridiagonal to its invariant dimension: a walk from coordinate 1
+that visits coordinate $h+1$ and returns needs at least $2h$ steps.
+The augmented matrix $H$ shares the first $h$ diagonals and the first
+$h$ off-diagonals with this full tridiagonal. Its changed last diagonal
+can first affect a return walk at length $2h+1$, so its spectral rule
+is exact through degree $2h$.
+The Schur complement of $H-aI$ is zero, so $a$ is an eigenvalue and
+$H\succeq aI$. Its other nodes are the zeros of the degree-$h$
+orthogonal polynomial for $(x-a)\nu_u$: exactness makes
+$\det(xI-H)/(x-a)$ orthogonal to degrees $0,\ldots,h-1$ for that
+measure. Positivity of the measure places these roots inside the
+convex hull of its support. This last assertion follows from the
+usual sign-change argument: fewer than $h$ interior sign changes
+would give a lower-degree polynomial whose product with it has a
+fixed nonzero sign, contradicting orthogonality.
+The spectral weights are squares of first eigenvector coordinates,
+are positive before breakdown, and sum to one.
+
+Hermite interpolation at the Gauss nodes (double interpolation)
+has remainder
+$g^{(2h)}(\xi)\prod_j(x-\theta_j)^2/(2h)!\geq0$.
+For Radau, interpolate once at $a$ and twice at the other $h$ nodes.
+The remainder is
+$g^{(2h+1)}(\xi)(x-a)\prod_j(x-\theta_j)^2/(2h+1)!\leq0$.
+These remainder formulas follow by repeated Rolle's theorem, and
+hold also at the interpolation nodes by continuity. Integrating
+and using polynomial exactness proves both quadrature inequalities.
+
+The Duhamel proof extends to CM $f$ by Tonelli applied to its
+nonnegative Laplace mixture. It gives $\Delta_f=\int_0^\beta F(u)du$
+for a finite penalty, and $\Delta_f=f_\infty+\int_0^\infty F(u)du$
+for hard grounding: the diverging eigenvalue contributes
+$f_\infty$ in the soft limit. Apply the same identity to $T_h$ for
+the lower endpoint.
+
+For finiteness and an explicit tail, both the exact and Radau spectral
+measures of the first vector have mean $d+u$, variance $v$, and
+support in $[a,\infty)$. The mass below $(d+u)/2$ is at most
+$4v/(d+u)^2$, by integrating $(x-d-u)^2$ on that event.
+Since $g$ is decreasing, either bilinear form is at most
+$4v g(a)/(d+u)^2+g((d+u)/2)$. Integration proves
+\eqref{eq:penaltytail}.
+
+There is also a directly evaluable finite-sum certificate for the
+penalty integration. The exact $F$ is decreasing: write $g$ as a
+Laplace mixture and apply Duhamel to its bilinear form; the negative
+derivative is a positive mixture of
+$\int_0^t (b^\top e^{-(t-r)A_u}b)(b^\top e^{-rA_u}b)dr$.
+Differentiation on bounded $u$-intervals is justified by an integrable
+exponential majorant at a positive spectral lower bound.
+For any partition of $[0,K]$, lower sums using $G_h$ at right endpoints
+and upper sums using $U_h$ at left endpoints bracket the exact integral.
+For hard grounding add $f_\infty$ and the tail bound to the upper sum.
+The lower reduced trace drop is an alternative, tighter certified
+lower endpoint requiring no penalty integration.
+\end{proof}
+\noindent Numerical check: \texttt{scripts/verify\_t4\_radau.py}.
+
+\begin{theorem}[Width and the dependence on the CM function]\label{thm:width}
+Define
+\[
+ \rho(a,C)=\frac{\sqrt{2C-a}+\sqrt a}{\sqrt{2C-a}-\sqrt a},\qquad
+ E_D(a,C)=\frac{2g(a/2)}{\rho(a,C)-1}\rho(a,C)^{-D}.
+\]
+The reduced marginal $L_h=\widehat\Delta_f$ gives the following
+single-run intervals, with no numerical integration:
+\begin{align}
+ L_h\leq\Delta_f&\leq L_h+2\beta E_{2h-1}(a,B+\beta)
+                 &&\text{(soft)},\label{eq:widthsoft}\\
+ L_h\leq\Delta_f&\leq L_h+(B-a)E_{2h-2}(a,B)
+                 &&\text{(hard)}.\label{eq:widthhard}
+\end{align}
+For relative width $\eta$, it suffices to make the added term at most
+$\eta\beta g(B+\beta)$ in the soft case or $\eta f(B)$ in the hard
+case. For each fixed power $s>0$ this gives
+$h=O(\sqrt\kappa((s+1)\log\kappa+\log(1/\eta)))$, with the
+corresponding interval condition number. For heat the bound retains
+the parameter $\tau B$ (or $\tau(B+\beta)$).
+There is no relative convergence rate uniform over the entire heat
+family that depends only on $\kappa,h$.
+\end{theorem}
+\begin{proof}
+For a rank-one update define the spectral count difference
+$\xi(x)=N_A(x)-N_B(x)$. Interlacing gives $0\leq\xi\leq1$.
+In the soft case it vanishes outside $[a,B+\beta]$,
+$\int\xi=\beta$, and $\Delta_f=\int g(x)\xi(x)dx$.
+In the hard case it equals one above $B$, and integration by parts
+gives $\Delta_f=f(B)+\int_a^B g(x)\xi(x)dx$.
+These identities follow first for a finite step function $\xi$ by
+telescoping over its jumps, then for the constant tail using
+$\int_B^\infty g=f(B)-f_\infty$. The same statements apply to
+the reduced matrices, with spectral count $\widehat\xi$.
+
+The trace drops of polynomials of degree at most $2h$ (soft) or
+$2h-1$ (hard) agree exactly. To verify this, for large $z$ put
+$m_A(z)=b^\top(zI-A)^{-1}b=z^{-1}\sum_{j\geq0}(b^\top A^jb)z^{-j}$.
+The first $2h-1$ moments agree with those of $T_h$.
+The hard determinant identity is
+$m_A(z)=\det(zI-C)/\det(zI-A)$; the coefficient of $z^{-p}$
+in $\log(zm_A(z))$ is $(\tr A^p-\tr C^p)/p$ and depends only
+on moments through $p$. The soft identity is
+$\det(zI-A_\beta)/\det(zI-A)=1-\beta m_A(z)$;
+its logarithmic coefficient is the soft trace drop divided by $p$
+and depends only on moments through $p-1$. The asserted degrees
+follow. All series converge for sufficiently large $z$.
+Therefore $\int p(x)(\xi-\widehat\xi)dx=0$ for every polynomial
+of degree $2h-1$ (soft) or $2h-2$ (hard).
+
+On the Bernstein ellipse for $[a,C]$ with parameter $\rho(a,C)$,
+the leftmost point is $a/2$. The Laplace representation implies
+$|g(z)|\leq g(a/2)$ there. Expanding in Chebyshev polynomials,
+the contour coefficient bound is $2g(a/2)\rho^{-j}$; it follows
+by applying Cauchy's coefficient formula after the map
+$z=(a+C)/2+(C-a)(w+w^{-1})/4$.
+Summing the tail yields a degree-$D$ polynomial $p$ with
+$\|g-p\|_{[a,C]}\leq E_D(a,C)$.
+For soft grounding, $\int|\xi-\widehat\xi|\leq2\beta$.
+For hard grounding, $|\xi-\widehat\xi|\leq1$ on an interval
+of length $B-a$. Subtract the matching polynomial in the spectral
+count formulas to obtain the absolute errors in
+\eqref{eq:widthsoft}--\eqref{eq:widthhard}; their one-sided sign
+comes from Theorem~\ref{thm:radau}.
+
+The spectral formulas also give
+$\Delta_f\geq\beta g(B+\beta)$ (soft) and
+$\Delta_f\geq f(B)$ (hard). With $K_s=2\beta$, $C=B+\beta$,
+$d_*=\beta g(C)$, or $K_s=B-a$, $C=B$, $d_*=f(B)$,
+an explicit sufficient degree is
+\[
+ D\geq\max\left\{0,
+ \frac{\log(2K_sg(a/2)/(\eta d_*(\rho-1)))}{\log\rho}\right\}.
+\]
+Use $D=2h-1$ or $2h-2$, respectively. Constant functions are handled
+exactly. For $g(x)=sx^{-s-1}$ the logarithm of the prefactor is
+$O((s+1)\log\kappa+\log(1/\eta))$; also
+$\log\rho=\Theta(\kappa^{-1/2})$. For heat,
+$g(x)=\tau e^{-\tau x}$, giving the stated $\tau$ dependence.
+
+For the last assertion take the $n\times n$ tridiagonal with diagonal
+2 and off-diagonal $-1/2$, starting at its endpoint. Its eigenvalues
+are $2-\cos(j\pi/(n+1))$ (substitute the sine eigenvectors), so its
+condition number is less than 3. The $h<n$ step projection is the
+same tridiagonal of size $h$. The exact hard heat drop is asymptotic
+to $e^{-\tau\lambda_{\min}(A_n)}$, since the deleted principal
+matrix has a strictly larger smallest eigenvalue. The projected drop
+is asymptotic to $e^{-\tau\lambda_{\min}(A_h)}$.
+Their ratio tends to zero as $\tau\to\infty$. Arbitrarily large $n$
+and bounded condition number therefore preclude a function-independent
+relative iteration bound.
+\end{proof}
+\noindent Numerical check: \texttt{scripts/verify\_t4\_convergence.py}.
+
+\begin{theorem}[Fixed positive surrogate with logarithmic shift count]\label{thm:fixedquad}
+Suppose every nonempty admissible grounded matrix has spectrum in
+$[a,B]$, $a>0$, and put $\kappa=B/a$. For each $s>0$ and
+$0<\eta<1$, there is a fixed positive rule
+\[
+ \widetilde f_s(x)=\sum_{j=1}^q w_j(x+t_j)^{-m},\quad
+ t_j,w_j>0,\quad m=\lfloor s\rfloor+1,
+\]
+such that its trace objective is nonincreasing and supermodular at
+every rule order and, for every soft or hard marginal,
+\begin{equation}\label{eq:fixedrelative}
+ (1-\eta)\Delta_{x^{-s}}\leq\Delta_{\widetilde f_s}\leq\Delta_{x^{-s}}.
+\end{equation}
+One explicit choice is
+\[
+ p=m+3+\left\lceil\log_4(2/\eta)\right\rceil,\qquad
+ q\leq(\lceil\log_2\kappa\rceil+2)p.
+\]
+Thus $q=O_s((1+\log\kappa)\log(1/\eta))$ for a fixed exponent.
+For $0<s<1$ the rule uses only first inverse powers ($m=1$);
+for $s=1$ one can use the exact single shift $t=0$ instead.
+\end{theorem}
+\begin{proof}
+Use the positive integral in Proposition~\ref{prop:allpowers}.
+Partition its shift domain into $[0,a]$, geometric intervals
+$[a,2a],[2a,4a],\ldots$ truncated at $B$, and $[B,\infty)$.
+On $[0,a]$ use $t=az$ and $p$-node Gauss--Jacobi for the weight
+$z^{m-s-1}$ on $[0,1]$. On every interior interval use $p$-node
+Gauss--Legendre, including the positive factor $t^{m-s-1}$ in
+the sampled integrand. On the tail use $z=B/t$ and Gauss--Jacobi
+with weight $z^{s-1}$. The tail integrand becomes
+$B^{-s}(1+xz/B)^{-m}$, a positive multiple of
+$(x+B/z)^{-m}$. All nodes and coefficients are positive and
+independent of $S$ or the candidate. Write the resulting scalar
+approximation as $F_p(x)$.
+
+Here is a uniform error bound for both $f_s$ and $g_s=-f_s'$.
+Put $\alpha=s+1-m\in[0,1)$ and $D=2p-1$.
+For an interior interval with center $c$ write $y=(t-c)/c$;
+its doubling ratio ensures $|y|\leq1/3$. After extracting a
+positive factor, the integrands for the function and its negative
+derivative have the form
+$(1+y)^{-\alpha}(1+\theta y)^{-r}$ with $0\leq\theta\leq1$
+and $r=m,m+1$. On $|y|=2/3$ their modulus is at most
+$3^{\alpha+r}$, while their minimum on the real interval is at
+least $(4/3)^{-\alpha-r}$.
+Cauchy's coefficient bound shows that the Taylor tail beyond degree
+$D$ is at most $2\,3^{\alpha+r}2^{-(D+1)}$.
+The quadrature integrates the Taylor polynomial exactly; positivity
+and exactness on constants bound its error plus the integral's error
+by twice this remainder times the interval mass. Dividing by the
+true integral gives relative error at most
+$4\,4^{\alpha+r}4^{-p}\leq4^{m+3-p}$.
+
+For the lower endpoint the weight absorbs the singularity, leaving
+$(x+az)^{-r}$. Expanding about $z=1/2$ gives a normalized variable
+of radius $a/(2x+a)\leq1/3$ and the same, or smaller, bound.
+For the upper endpoint the derivative integrand, under its fixed
+weight, is proportional to $z(1+xz/B)^{-m-1}$.
+Approximate its denominator factor to degree $D-1$ and multiply
+by $z$. The error argument now uses exactness on $z$, with radius
+$x/(2B+x)\leq1/3$. The bound is
+$8\,4^{m+1}4^{-p}\leq4^{m+3-p}$.
+The function tail needs degree $D$ and has a smaller bound.
+These estimates hold for every $x\in[a,B]$. Summing positive panel
+integrals gives, with $\epsilon=4^{m+3-p}\leq\eta/2$,
+\[
+ |F_p/f_s-1|\leq\epsilon,\qquad
+ |(-F_p')/g_s-1|\leq\epsilon.
+\]
+Define $\widetilde f_s=F_p/(1+\eta/2)$. Both it and its negative
+derivative lie between $1-\eta$ and 1 times their true counterparts.
+
+For soft grounding integrate the derivative bounds against the
+nonnegative spectral count $\xi$. For hard grounding use
+$\Delta_f=f(B)+\int_a^B(-f')\xi$, so the endpoint value is controlled
+as well. This proves \eqref{eq:fixedrelative} without taking a
+relative error of two nearly equal traces. In particular it treats
+the hard ratio $r_2/r_1$ rather than a log-resolvent substitute.
+Every shifted inverse power is CM, so Theorem~\ref{thm:cm} proves
+supermodularity of every finite positive rule, including orders
+below the accuracy threshold. There are at most
+$\lceil\log_2\kappa\rceil+2$ panels, proving the count.
+\end{proof}
+\noindent Numerical check: \texttt{scripts/verify\_t4\_quadrature.py}.
+
+\paragraph{Spectral bounds used by the rule.}
+One may take $B=2d_{\max}+\sigma+\beta$ for soft grounding and
+$B=2d_{\max}+\sigma$ for hard grounding. If $\sigma>0$, take
+$a=\sigma$. For a connected weighted graph at $\sigma=0$, put
+$w_*=\min_e w_e$. A nonempty hard seed permits $a=w_*/n^2$.
+For a soft seed a valid bound is
+$a=(2n^2/w_*+2n/\beta)^{-1}$: along a path from $u$ to a seeded
+vertex $v$, $x_u^2\leq2x_v^2+2n\sum_{e\text{ on path}}(\nabla_ex)^2$;
+sum over $u$ and compare with the grounded quadratic form.
+The hard bound follows from the same path inequality with $x_v=0$,
+and the upper bounds follow from the edge-energy inequality
+$(x_i-x_j)^2\leq2x_i^2+2x_j^2$.
+
+\section{T5: incremental scalar caches}
+\begin{proposition}[Exact two-moment updates]\label{prop:updates}
+At one shift let $R=(A+tI)^{-1}$, $x=Re_v$, $y=R^2e_v$, and
+$z=r_{2,v}=x^\top x$. Put $c=(\beta^{-1}+r_{1,v})^{-1}$, using
+$\beta^{-1}=0$ for hard grounding. Every remaining candidate $u$ obeys
+\begin{align}
+ r_{1,u}^+&=r_{1,u}-c x_u^2,\label{eq:updateone}\\
+ r_{2,u}^+&=r_{2,u}-2c x_u y_u+c^2 z x_u^2.\label{eq:updatetwo}
+\end{align}
+Once $x,y$ are available, updating all candidates at $q$ shifts costs
+$O(nq)$ arithmetic and $O(nq)$ cache storage. Selected-column generation
+requires two solves per shift, or one retained Krylov basis from $e_v$
+with both small functions $(T+tI)^{-1}e_1,(T+tI)^{-2}e_1$.
+\end{proposition}
+\begin{proof}
+Sherman--Morrison gives $R^+=R-cxx^\top$ for soft grounding.
+For hard grounding the same matrix has zero row and column $v$;
+its complementary block is $(A[-v,-v]+tI)^{-1}$ by the block inverse
+identity in Lemma~\ref{lem:resolvent}. Thus diagonal entries, and
+squared-column norms at remaining coordinates, can be computed before
+or after deleting the zero row and column. Squaring gives
+\[
+ (R-cxx^\top)^2=R^2-c(yx^\top+xy^\top)+c^2(x^\top x)xx^\top.
+\]
+Taking diagonals proves both updates. Two shifted solves produce
+$x$ and $y$; a retained Lanczos basis gives their projected versions
+from the two indicated small vectors, exactly at termination.
+Reconstructing both vectors at all shifts costs $O(nqh)$ after an
+$h$-step basis is stored, in addition to the large matrix--vector
+products. Only the cache update itself costs $O(nq)$.
+\end{proof}
+\noindent Numerical check: \texttt{scripts/verify\_t5\_updates.py}.
+
+\begin{theorem}[Cache-error propagation]\label{thm:cache}
+Suppose the current scalar errors are bounded by $e_{1,u},e_{2,u}$.
+For one update suppose the errors in $c,x_u,y_u,z$ are bounded by
+$e_c,e_x,e_y,e_z$, and both exact and approximate quantities have
+absolute bounds $C,X,Y,Z$, respectively. Then valid updated errors are
+\begin{align}
+ e_{1,u}^+&=e_{1,u}+e_cX^2+2CXe_x,\label{eq:cacheone}\\
+ e_{2,u}^+&=e_{2,u}+2e_cXY+2C(e_xY+Xe_y)
+       +2Ce_cZX^2+C^2e_zX^2+2C^2ZXe_x.\label{eq:cachetwo}
+\end{align}
+If $\ell\leq r_{1,v},\widehat r_{1,v}$ is positive, one may use
+$e_c=e_{1,v}/(\beta^{-1}+\ell)^2$ and $C=(\beta^{-1}+\ell)^{-1}$.
+If $a_t\leq\lambda_{\min}(A+tI)$ and approximate selected columns
+have residuals $p=e_v-(A+tI)\widehat x$,
+$q=\widehat x-(A+tI)\widehat y$, valid column-error bounds are
+\[
+ e_x=\|p\|/a_t,\qquad e_y=(\|q\|+e_x)/a_t.
+\]
+These deterministic bounds remain valid under adaptive choices of
+the selected vertex.
+\end{theorem}
+\begin{proof}
+For a product use telescoping with the stated envelopes. In particular,
+$|\widehat x^2-x^2|\leq2Xe_x$ and
+$|\widehat c^2-c^2|\leq2Ce_c$.
+The error in $cx^2$ is at most $e_cX^2+2CXe_x$;
+the error in $2cxy$ is at most $2e_cXY+2C(e_xY+Xe_y)$;
+the error in $c^2zx^2$ is at most
+$2Ce_cZX^2+C^2e_zX^2+2C^2ZXe_x$.
+Adding the old cache error proves the formulas.
+The reciprocal difference identity gives the bound on $e_c$.
+The residual equations give
+$\widehat x-x=-(A+tI)^{-1}p$ and
+$\widehat y-y=(A+tI)^{-1}(\widehat x-x-q)$, proving the solve bounds.
+
+Useful deterministic envelopes are $\ell=1/B_t$, $X=1/a_t$,
+$Y=Z=1/a_t^2$, with estimates clipped to these known ranges.
+Projection onto a known interval containing the truth cannot increase
+absolute error. SDDM inverses and their squares are entrywise
+nonnegative, so columns may be clipped to $[0,X]$ and $[0,Y]$.
+To see inverse positivity directly, choose $d\geq\max_i A_{ii}+t$;
+$A+tI=dI-N$ with $N\geq0$ and $\rho(N)<d$, and expand the inverse
+as a convergent nonnegative Neumann series.
+
+For an explicit multiround bound set $E_i=\max_u e_{i,u}$ and
+$D=\beta^{-1}+\ell$. With uniform column bounds one step satisfies
+\[
+ \begin{pmatrix}E_1^+\\E_2^+\end{pmatrix}
+ \leq
+ \begin{pmatrix}
+ 1+X^2/D^2&0\\
+ (2XY+2CZX^2)/D^2&1+C^2X^2
+ \end{pmatrix}
+ \begin{pmatrix}E_1\\E_2\end{pmatrix}
+ +\begin{pmatrix}
+ 2CXe_x\\(2CY+2C^2ZX)e_x+2CXe_y
+ \end{pmatrix}.
+\]
+The coefficient matrices are nonnegative. Their ordered products and
+the corresponding propagated additive terms give a bound for any
+number of rounds by induction. This induction is pathwise and
+therefore applies even when each selected vertex is chosen from
+the current approximate cache.
+\end{proof}
+\noindent Numerical check: \texttt{scripts/verify\_t5\_cache\_errors.py}.
+
+\section{T6: all-node initialization}
+Let $A$ be the fixed initial positive definite SDDM matrix, with
+$aI\preceq A\preceq BI$, $N$ active vertices, and $m_E$ active
+off-diagonal edges. All shifts in the initialization are fixed before
+the random sketch is drawn. In this section $d$ denotes sketch
+dimension and $q$ denotes the number of requested shifts.
+
+\begin{lemma}[Uniform JL on the entire resolvent curve]\label{lem:continuum}
+Let $Q\in\R^{d\times N}$ have independent $N(0,1/d)$ entries,
+$0<\epsilon,\delta<1$, and $\kappa=B/a$. Put
+\[
+ M_*=\sqrt{2N/\delta},\quad
+ K=2+\left\lceil\frac{4M_*\log\kappa}{\epsilon}\right\rceil,
+ \quad d\geq\frac{32}{\epsilon^2}\log\frac{4NK}{\delta}.
+\]
+With probability at least $1-\delta$, simultaneously for every
+vertex $u$ and every $t\in[0,\infty)$,
+\begin{equation}\label{eq:continuumjl}
+ (1-\epsilon)r_{2,u}(t)
+ \leq\|Q(A+tI)^{-1}e_u\|^2
+ \leq(1+\epsilon)r_{2,u}(t).
+\end{equation}
+Consequently integrating the middle expression over $[t,\infty)$
+approximates $r_{1,u}(t)$ with the same factor, simultaneously for
+every $u,t$.
+\end{lemma}
+\begin{proof}
+For a fixed unit vector $w$, $d\|Qw\|^2$ is chi-squared with $d$
+degrees of freedom. Its moment generating function
+$(1-2\theta)^{-d/2}$, Chernoff's method, and
+$x-\log(1+x)\geq x^2/4$ for $0<x<1$ give
+\begin{equation}\label{eq:chisquare}
+ \Prob\{|\|Qw\|^2-1|>x\}\leq2e^{-dx^2/8}.
+\end{equation}
+For the lower tail use $-x-\log(1-x)\geq x^2/2$; these scalar
+inequalities follow by differentiating both sides from zero.
+
+Normalize $w_u(t)=(A+tI)^{-1}e_u/\|(A+tI)^{-1}e_u\|$.
+Writing $R=(A+tI)^{-1}$, differentiation gives
+$w'_u=-(R-(w_u^\top Rw_u)I)w_u$. Its squared norm is the variance
+of the eigenvalues of $R$ under the spectral weights of $w_u$.
+For a variable in $[l,r]$, its variance is at most $(r-l)^2/4$:
+average $(X-l)(X-r)\leq0$ and then maximize
+$(r-\E X)(\E X-l)$. Hence
+\[
+ \|w'_u(t)\|\leq\frac{B-a}{2(a+t)(B+t)}.
+\]
+The total length is at most $\tfrac12\log\kappa$.
+The parameter
+$\phi(t)=\tfrac12\log(B(a+t)/(a(B+t)))$ bounds the arc distance
+between any two parameters by their $\phi$ difference, and
+$w_u(\infty)=e_u$. Choose a deterministic net with mesh
+$r_* =\epsilon/(8M_*)$ in $\phi$, including the limit at infinity.
+At most $K$ net points per vertex suffice; when $\kappa=1$ each
+curve is constant.
+
+Apply \eqref{eq:chisquare} with $x=\epsilon/2$ and a union bound
+over these $NK$ unit vectors. The failure probability is at most
+$\delta/2$. Also $\E\|Q\|_F^2=N$, so Markov's inequality gives
+$\|Q\|_2\leq\|Q\|_F\leq M_*$ except with probability $\delta/2$.
+On their intersection, for any point and its nearest net point,
+the projected norms differ by at most $M_*r_* =\epsilon/8$.
+Squaring
+$\sqrt{1-\epsilon/2}-\epsilon/8\leq\|Qw_u(t)\|
+\leq\sqrt{1+\epsilon/2}+\epsilon/8$
+gives \eqref{eq:continuumjl} for $0<\epsilon<1$.
+This proves the uncountable event by a finite deterministic net.
+
+Finally spectral decomposition gives
+$\int_t^\infty (A+zI)^{-2}dz=(A+tI)^{-1}$.
+All integrands in \eqref{eq:continuumjl} are nonnegative, so its
+simultaneous event may be integrated without a second union bound.
+For a finite implementation, the $s=1,m=2$ rule of
+Theorem~\ref{thm:fixedquad}, applied on $[a+t,B+t]$, replaces this
+integral by positive evaluations at extra shifts. Its relative
+factor $[1-\eta,1]$ combines with JL to give
+$[(1-\epsilon)(1-\eta),1+\epsilon]$. Thus no finite-grid assumption
+about the unevaluated continuum is needed.
+\end{proof}
+\noindent Numerical check: \texttt{scripts/verify\_t6\_continuum\_jl.py}.
+
+\begin{theorem}[Two RHS families: certified all-node initialization]\label{thm:initialization}
+Factor $A=C^\top C$, where $C$ has $O(m_E+N)$ nonzeros.
+Let $Q\in\R^{d\times N}$ and $Z\in\R^{d\times r}$ be independent
+Gaussian matrices with entries $N(0,1/d)$, where $r$ is the row count
+of $C$, and put $P=ZC$. For every requested shift define
+\[
+ Y_j=Q(A+t_jI)^{-1},\qquad X_j=P(A+t_jI)^{-1}.
+\]
+Thus only the $2d$ rows of $P,Q$ are right-hand sides, independently
+of the number of vertices and shifts. Define the approximate outputs
+\begin{equation}\label{eq:allnodediags}
+ \widehat r_{2,u}(t_j)=\|\widehat Y_j[:,u]\|^2,\qquad
+ \widehat r_{1,u}(t_j)
+   =\|\widehat X_j[:,u]+\sqrt{t_j}\widehat Y_j[:,u]\|^2.
+\end{equation}
+For $0<\epsilon,\delta<1$, take
+\[
+ d\geq128\epsilon^{-2}\log(12Nq/\delta),\qquad
+ a_j=a+t_j,\quad B_j=B+t_j.
+\]
+Require the two Frobenius residual tests
+\begin{align}
+ \|Q-\widehat Y_j(A+t_jI)\|_F
+       &\leq\frac{\epsilon a_j}{16B_j},\label{eq:resY}\\
+ \|P-\widehat X_j(A+t_jI)\|_F
+       &\leq\frac{\epsilon a_j}{16\sqrt{B_j}}.\label{eq:resX}
+\end{align}
+If the solves satisfy these tests with total failure probability at
+most $\delta/3$, then with probability at least $1-\delta$ all
+$2Nq$ estimates have relative error at most $\epsilon$.
+Using nearly-linear SDDM solvers, the initialization takes
+$\widetilde O((m_E+N)q\epsilon^{-2})$ time; the suppressed factors
+include logarithms of $N,\kappa,q,1/\epsilon,1/\delta$.
+The outputs and streaming accumulation need $O(Nq)$ storage in
+addition to graph and solver workspace.
+\end{theorem}
+\begin{proof}
+For an SDDM matrix write the off-diagonals as $-w_{uv}$ and its row
+sums as nonnegative $k_u$. Give $C$ one incidence row
+$\sqrt{w_{uv}}(e_u-e_v)^\top$ per edge and a row $\sqrt{k_u}e_u^\top$
+per nonzero row sum. Direct multiplication gives $C^\top C=A$
+and the nonzero bound. Grounded principal submatrices retain this
+form, including boundary-edge contributions in the row sums.
+
+For a fixed $j,u$, $Y_j[:,u]$ has independent centered Gaussian
+coordinates with variance $r_{2,u}(t_j)/d$.
+The rows of $P+\sqrt{t_j}Q$ have covariance
+$(A+t_jI)/d$, since $Z$ and $Q$ are independent. Therefore
+$X_j[:,u]+\sqrt{t_j}Y_j[:,u]$ has coordinate variance
+$r_{1,u}(t_j)/d$. Independence between different shifts or between
+these two estimators is unnecessary. Equation~\eqref{eq:chisquare}
+with $x=\epsilon/4$ and a union bound gives simultaneous squared-norm
+error $\epsilon/4$ with failure at most
+$4Nq\exp(-d\epsilon^2/128)\leq\delta/3$.
+
+The solution error's Frobenius norm is at most its residual norm
+divided by $a_j$. Thus the error in each $Y$ column is at most
+$\epsilon/(16B_j)$, and the error in each combined $X+\sqrt{t_j}Y$
+column is at most
+\[
+ \frac{\epsilon}{16\sqrt{B_j}}
+       +\frac{\epsilon\sqrt{t_j}}{16B_j}
+ \leq\frac{\epsilon}{8\sqrt{B_j}}.
+\]
+The exact target squared norms satisfy
+$r_{2,u}\geq B_j^{-2}$ and $r_{1,u}\geq B_j^{-1}$.
+The triangle inequality therefore bounds normalized approximate
+norms by $\sqrt{1\pm\epsilon/4}\pm\epsilon/8$ (with a still
+smaller perturbation for $r_2$). Squaring gives factors between
+$1-\epsilon$ and $1+\epsilon$. Union with the solver event proves
+the probability assertion.
+
+For completeness, standard SDDM solves with relative energy error
+can enforce the residual tests. If a batch has right-hand side
+matrix $D$ and every solution has relative $A_j$-energy error $\xi$,
+then, summing the squared energy errors,
+\[
+ \|\text{residual}\|_F
+ \leq\sqrt{B_j}\,\xi
+      \left(\sum_\ell D_\ell A_j^{-1}D_\ell^\top\right)^{1/2}
+ \leq\xi\sqrt{B_j/a_j}\,\|D\|_F.
+\]
+Taking
+\[
+ \xi\leq\frac{\epsilon}{16\kappa_j^{3/2}
+              \max\{1,\|Q\|_F,\|P\|_F/\sqrt{B_j}\}},
+ \qquad\kappa_j=B_j/a_j,
+\]
+suffices for both tests. Equivalently, individual residual budgets
+can be allocated with squared budgets summing to the displayed
+Frobenius budget. These are deterministic, checkable conditions.
+The standard nearly-linear SDDM solver is used as the linear-system
+primitive~\cite{kyng2016}; the sketch construction follows the
+factor-and-solve principle of Spielman--Srivastava~\cite{ss2011}.
+Their guarantees give relative energy accuracy in time nearly linear
+in nonzeros, with logarithmic dependence on $1/\xi$ and the failure
+budget. For example, the high-probability factorization variant in
+Appendix B of~\cite{kyng2016}, followed by its iterative refinement,
+provides this primitive; SDDM systems reduce to a grounded Laplacian
+by adding one cemetery vertex for the row sums. Here $\E\|Q\|_F^2=N$ and
+$\E\|P\|_F^2=\tr A\leq NB$. Markov bounds make both norms at most
+$\sqrt{6N/\delta}$ and $\sqrt{6NB/\delta}$, respectively, except
+with combined probability $\delta/3$. Hence
+$\log(1/\xi)=O(\log(N\kappa/(\epsilon\delta)))$ on that event.
+
+There are $2dq$ solves, plus $O(d(m_E+Nq))$ sketch generation and
+accumulation work. In primitive notation the time is
+$O(d\sum_j 2T_{\rm SDDM}(A_j,\xi_j,\delta/(6dq))
+   +d(m_E+Nq))$, yielding the stated bound.
+Process one Gaussian row pair at a time and accumulate squared
+coordinates into the $2Nq$ outputs; only one pair of length-$N$
+right-hand sides and the solver workspace are needed at a time.
+The inputs $P,Q$ are shared across all shifts.
+
+The same shared right-hand sides also admit a multi-shift Krylov
+implementation. With depth $h$ it costs
+$O(dh(m_E+Nq))$ including vector recovery/updates at every shift.
+The nearly-linear bound above is supplied by the SDDM primitive;
+the shared unpreconditioned Krylov count retains $h$ explicitly.
+General shift-dependent preconditioners do not satisfy the simple
+shared-space identity used by the unpreconditioned construction.
+
+Finally the uniform initialization event gives intervals
+$[\widehat r/(1+\epsilon),\widehat r/(1-\epsilon)]$ for every entry.
+Applying Theorem~\ref{thm:cache} maintains their containment along
+any adaptive sequence of selected nodes. Random solver calls in
+later rounds can be assigned conditional failure budgets with a
+bounded sum; a union bound conditional on each preceding history
+then suffices. No union over exponentially many possible selected
+sets, or fresh independence of the original sketch after selection,
+is required for this cache-update use.
+For $0<s<1$, let $r_{i,u,j}\in[l_{i,u,j},u_{i,u,j}]$ be the
+maintained intervals and put $b_0=\beta^{-1}$, or zero for hard
+grounding. Intersect these intervals with the known positive
+spectral ranges $[B_j^{-1},a_j^{-1}]$ and $[B_j^{-2},a_j^{-2}]$,
+respectively. Each first-resolvent marginal lies in
+\[
+ \left[\frac{l_{2,u,j}}{b_0+u_{1,u,j}},
+       \frac{u_{2,u,j}}{b_0+l_{1,u,j}}\right].
+\]
+Positive summation with the fixed surrogate weights gives bounds
+$[L,U]$ for its marginal. By \eqref{eq:fixedrelative},
+$[L,U/(1-\eta)]$ then contains the original fractional marginal.
+These are valid candidate upper bounds throughout the cache event.
+At $s=1$ use the same ratio at $t=0$, with $\eta=0$.
+\end{proof}
+\noindent Numerical check: \texttt{scripts/verify\_t6\_initialization.py}.
+
+\begin{corollary}[Higher moments from the same Gaussian families]\label{cor:higherjl}
+For every integer $\ell\geq1$, the squared columns of
+$Q(A+tI)^{-\ell}$ estimate $r_{2\ell,u}(t)$, and those of
+$(P+\sqrt tQ)(A+tI)^{-\ell}$ estimate $r_{2\ell-1,u}(t)$.
+For any fixed maximum order $J$, all $NJq$ moments have simultaneous
+relative accuracy with $d=O(\epsilon^{-2}\log(NJq/\delta))$ and
+$O(dq\lceil J/2\rceil)$ solves, with logarithmic precision factors.
+\end{corollary}
+\begin{proof}
+After multiplication the two row covariance matrices are
+\[
+ (A+tI)^{-2\ell}/d\quad\text{and}\quad(A+tI)^{-(2\ell-1)}/d.
+\]
+Apply the chi-squared tail and union bound exactly as above, over
+at most $NJq$ moments. Repeated solves obtain these powers without
+forming a matrix power. For an approximate chain
+$V_\ell A_t\simeq V_{\ell-1}$, let $\rho_\ell$ be the Frobenius
+norm of this residual, and $E_\ell$ the Frobenius error from the
+exact chain with the same starting right-hand sides. Then
+\[
+ E_\ell\leq(E_{\ell-1}+\rho_\ell)/(a+t),\qquad E_0=0.
+\]
+This follows by multiplying the difference equation by $A_t^{-1}$.
+For even moments impose $E^Q_\ell\leq(\epsilon/8)(B+t)^{-\ell}$;
+for odd moments impose
+$E^P_\ell+\sqrt t E^Q_\ell
+ \leq(\epsilon/8)(B+t)^{-\ell+1/2}$.
+These are sufficient because the corresponding exact target norms
+are at least $(B+t)^{-\ell}$ and $(B+t)^{-\ell+1/2}$.
+The same norm perturbation argument proves relative accuracy.
+Choose residual budgets successively to meet these inequalities.
+For fixed $J$ their relative precision is polynomial in
+$\epsilon,1/\kappa,1/N,\delta$, so the nearly-linear primitive
+adds only logarithmic precision factors. Each right-hand side is
+solved at most $\lceil J/2\rceil$ times per shift.
+\end{proof}
+\noindent Numerical check: \texttt{scripts/verify\_t6\_higher\_moments.py}.
+
+\begin{proposition}[Direct forest-count estimators and their variance]\label{prop:forest}
+For $A_t=L+tI$, $t>0$, let $\rho(u)$ be the root of $u$ in a
+rooted forest sampled with weight proportional to
+$t^{\#\text{roots}}\prod_{e\text{ in forest}}w_e$.
+Then $\Prob(\rho(u)=v)=t(A_t^{-1})_{uv}$.
+In particular the self-root indicator divided by $t$ estimates
+$r_{1,u}$, and the collision indicator for $u$'s roots in two
+independent forests, divided by $t^2$, estimates $r_{2,u}$.
+For unit-weight complete graphs and $0<t\leq1$, both Bernoulli
+probabilities lie in $[1/N,2/N]$. Each direct sample-mean estimator
+therefore needs $\Omega(N/\epsilon^2)$ independent samples even
+to make its relative root-mean-square error at most $\epsilon$.
+\end{proposition}
+\begin{proof}
+Use Wilson's exact rooted-forest sampler, equivalently add a cemetery
+vertex with edge weight $t$ to every vertex and delete it after
+sampling its rooted tree~\cite{wilson1996}. In this sampler $u$
+may be processed first, by the order invariance of cycle popping.
+Its eventual root is the last vertex of its walk before killing;
+loop erasure preserves that endpoint. The continuous-time walk
+has generator $-L$ and independent killing rate $t$.
+Its absorption distribution is
+$\int_0^\infty t e^{-tz}(e^{-zL})_{uv}dz=t(A_t^{-1})_{uv}$.
+This also follows from the first-step equations
+$(L+tI)H=tI$. Independence of two forests gives collision probability
+$\sum_v(tR_{uv})^2=t^2r_{2,u}$, using symmetry of $R$.
+
+For the complete graph the Laplacian is $N(I-\ind\ind^\top/N)$.
+The self-root and collision probabilities are therefore
+\[
+ p_1=\frac1N+\left(1-\frac1N\right)\frac{t}{N+t},\qquad
+ p_2=\frac1N+\left(1-\frac1N\right)\left(\frac{t}{N+t}\right)^2.
+\]
+For $0<t\leq1$ both are in $[1/N,2/N]$.
+The mean of $R_s$ independent Bernoulli samples with success
+probability $p$ has relative mean-square error $(1-p)/(R_sp)$.
+Consequently $R_s\geq(N/2-1)/\epsilon^2$ is necessary.
+Scaling by $1/t$ or $1/t^2$ does not change relative error.
+For homogeneous killing, a simple upper bound on Wilson walk work
+per forest is $N(1+d_{\max}/t)$: each walk step is absorbed with
+probability at least $t/(d_{\max}+t)$, and at most $N$ walks start.
+Hitting an existing tree only shortens these walks.
+\end{proof}
+\noindent Numerical check: \texttt{scripts/verify\_t6\_forest\_comparison.py}.
+
+\paragraph{Initialization choice and comparison.}
+The main initialization uses the two-factor Gaussian construction:
+it estimates both diagonal families directly, shares $2d$ right-hand
+sides across shifts, and has an SDDM-solver complexity independent of
+individual root probabilities. The continuum theorem provides a
+second derivation of the suggested $r_2$-integration route, with
+additional positive-quadrature shifts when implemented finitely.
+For $0<s<1$, the fixed surrogate uses first inverse powers, so these
+two cached moments are exactly the quantities in its scalar ratios.
+At $s=1$ only the zero shift is needed.
+
+Rooted-forest sampling changes its killing distribution with the
+shift. ForestCFCM and SchurCFCM~\cite{xia2025} use voltage/path
+estimators, JL compression, adaptive error tests, and, in the latter
+case, auxiliary roots and a Schur complement. Their Lemma 3.9 gives
+a uniform sample bound containing
+$\epsilon^{-2}\operatorname{diam}(G)^2
+ d_{\max}(S)^{2\operatorname{diam}(G)+2}\log N$;
+their walk cost is controlled by an absorbing-walk trace.
+This identifies complementary graph-dependent costs to measure in
+the later experimental comparison. The construction above supplies
+uniform relative diagonal guarantees for arbitrary weighted SDDM
+inputs, while Theorem~\ref{thm:radau} supplies deterministic
+candidate-level CM marginal certificates.
+
+\section{T7: integer marginals and certified lazy greedy}
+This section analyzes stale-bound CELF; the fresh all-node variant
+in T7b supplies the worst-case nearly-linear-per-round guarantee.
+T12 analyzes the maintained-sketch hybrid used by the final engine.
+The CELF algorithm retains upper bounds by supermodularity and
+refreshes candidates from the current matrix. The incremental
+two-moment updates of T5 are an optional acceleration, separate
+from the guarantee below. We first resolve integer-power evaluation.
+In this section $p\geq1$ denotes an integer exponent, and $m_E$
+denotes the graph's edge count.
+
+\begin{proposition}[Positive integer marginal representation]\label{prop:integerpositive}
+At any nonnegative shift let $R=(A+tI)^{-1}$, $x=Rb$,
+$c=(\beta^{-1}+r_1)^{-1}$, using $\beta^{-1}=0$ for hard grounding,
+and $K=R-cxx^\top\succeq0$. Define
+\[
+ a_j=cr_{j+1},\qquad d_j=cx^\top K^{j-1}x\quad(j\geq1),
+ \qquad H_0=1,\quad H_j=\sum_{i=1}^j d_i H_{j-i}.
+\]
+The integer marginal admits the noncancelling formula
+\begin{equation}\label{eq:integerpositive}
+ q_p(t)=\sum_{j=1}^p j d_j H_{p-j},\qquad
+ a_p\leq q_p(t)\leq p a_p.
+\end{equation}
+All terms are nonnegative. In particular, with $\nu$ the probability
+measure defined below,
+\begin{equation}\label{eq:q2variance}
+ q_2=2a_2-a_1^2=a_2+\operatorname{Var}_{\nu}(Z),
+ \qquad a_1^2\leq a_2.
+\end{equation}
+\end{proposition}
+\begin{proof}
+For soft grounding $K=(A+tI+\beta bb^\top)^{-1}$.
+For hard grounding it is the zero-padded inverse of the deleted
+principal matrix. These facts follow from the T3 block identities,
+so $q_p=\tr R^p-\tr K^p$ and $K\succeq0$ in both cases.
+Write $D(z)=\sum_{j\geq1}d_jz^j=czx^\top(I-zK)^{-1}x$.
+For sufficiently small $|z|$, the determinant lemma gives
+\[
+ \frac{\det(I-zK)}{\det(I-zR)}=\frac1{1-D(z)},\qquad
+ \sum_{p\geq1}\frac{q_p}{p}z^p=-\log(1-D(z)).
+\]
+Every $d_j$ is nonnegative by positive semidefiniteness of $K$.
+The reciprocal power series has coefficients $H_j$ satisfying the
+stated positive recurrence. Differentiating the logarithmic series
+proves \eqref{eq:integerpositive}'s equality.
+
+Alternatively expand words in $R=K+cxx^\top$ inside $\tr R^p$.
+Marking one of the $\ell$ occurrences of $cxx^\top$ and cyclically
+rotating the trace gives
+\[
+ q_p=\sum_{\ell=1}^p\frac p\ell
+       \sum_{\substack{j_1+\cdots+j_\ell=p\\j_i\geq1}}
+       d_{j_1}\cdots d_{j_\ell}.
+\]
+This counting identity follows because there are $p$ possible
+positions for a marked occurrence and each word is counted $\ell$
+times. The same expansion in $cx^\top R^{p-1}x=cr_{p+1}=a_p$
+gives the identical sum without the factor $p/\ell$.
+Every factor is nonnegative and $1\leq p/\ell\leq p$, proving
+both magnitude bounds.
+
+For the variance form diagonalize $R$, with eigenvalues $z_i>0$
+and spectral weights $w_i$ of $b$. Put mass $cw_i z_i$ at $z_i$
+and mass $1-cr_1$ at zero. These masses sum to one; in the soft
+case the zero mass equals $\beta^{-1}/(\beta^{-1}+r_1)$, and it
+is zero in the hard case. The resulting distribution $\nu$ has
+$\E_\nu Z^j=a_j$. Thus $a_1^2\leq a_2$, and the formula for
+$q_2$ from T3 becomes \eqref{eq:q2variance}. The subtracted term
+is at most half of $2a_2$, so second-order cancellation is uniformly
+bounded, independently of dimension and condition number.
+\end{proof}
+\noindent Numerical check: \texttt{scripts/verify\_t7\_integer\_positive.py}.
+
+\begin{theorem}[Relative moment-to-marginal certificate]\label{thm:momentstability}
+Suppose $|\widehat r_j/r_j-1|\leq\zeta<1$ for
+$1\leq j\leq p+1$. Evaluate $\widehat q_p$ by the scalar logarithm
+recurrence of T3 from these moments and the exact penalty. Then
+\begin{equation}\label{eq:momentcondition}
+ \left|\frac{\widehat q_p}{q_p}-1\right|
+ \leq C_p(\zeta):=2^p((1-\zeta)^{-p}-1).
+\end{equation}
+In particular a desired relative marginal error $\eta_0<1$ is
+certified by
+\[
+ \zeta\leq1-(1+\eta_0/2^p)^{-1/p}.
+\]
+The absolute-term condition number of the exact logarithmic
+polynomial is at most $2^p-1$. Independently, moment intervals
+$r_1\in[l_1,u_1]$, $r_{p+1}\in[l_{p+1},u_{p+1}]$, $l_1>0$,
+give the cancellation-free coarse marginal interval
+\begin{equation}\label{eq:coarseinteger}
+ \left[\frac{l_{p+1}}{\beta^{-1}+u_1},
+       \frac{p u_{p+1}}{\beta^{-1}+l_1}\right].
+\end{equation}
+\end{theorem}
+\begin{proof}
+The Taylor series $F(t-z)/F(t)$ from T3 equals
+$1+\sum_{j\geq1}a_jz^j$, where $a_j=cr_{j+1}$.
+Hence
+\[
+ q_p=p\sum_{\ell=1}^p\frac{(-1)^{\ell+1}}\ell
+       \sum_{\substack{j_1+\cdots+j_\ell=p\\j_i\geq1}}
+       a_{j_1}\cdots a_{j_\ell}.
+\]
+For the probability measure in Proposition~\ref{prop:integerpositive},
+Holder's inequality gives $a_j\leq a_p^{j/p}$ for $j\leq p$.
+Thus every product in the inner sum is at most $a_p$.
+The number of compositions is $\binom{p-1}{\ell-1}$, so the sum
+of absolute terms is at most
+$a_p\sum_{\ell=1}^p(p/\ell)\binom{p-1}{\ell-1}
+ =(2^p-1)a_p\leq(2^p-1)q_p$.
+
+The perturbed reciprocal coefficient satisfies
+$(1+\zeta)^{-1}\leq\widehat c/c\leq(1-\zeta)^{-1}$.
+Consequently $\theta^{-1}\leq\widehat a_j/a_j\leq\theta$,
+where $\theta=(1+\zeta)/(1-\zeta)$.
+A product of $\ell$ factors changes by at most
+$(\theta^\ell-1)$ times its true value, even when the perturbed
+moments are not a consistent moment sequence. Therefore
+\[
+ |\widehat q_p-q_p|
+ \leq a_p\sum_{\ell=1}^p\binom p\ell(\theta^\ell-1)
+ =a_p((1+\theta)^p-2^p)\leq q_p C_p(\zeta).
+\]
+Solving $C_p(\zeta)\leq\eta_0$ proves the precision choice.
+Finally \eqref{eq:coarseinteger} follows directly from
+$cr_{p+1}\leq q_p\leq pcr_{p+1}$ and positivity of the denominator.
+For $p=2$, \eqref{eq:momentcondition} is
+$4((1-\zeta)^{-2}-1)=8\zeta+O(\zeta^2)$.
+These bounds propagate input-moment uncertainty; finite-precision
+evaluation can additionally use the positive recurrence or validated
+scalar arithmetic.
+\end{proof}
+\noindent Numerical check: \texttt{scripts/verify\_t7\_moment\_stability.py}.
+
+\paragraph{Initialization and permanent keys.}
+Fix the admissible seed $S_0$ and let $W=V\setminus S_0$ contain
+$N$ eligible vertices. The budget $1\leq k\leq N$ counts additional vertices.
+For integer exponent $p$, the only shift is zero and the initial
+moments are $r_1,\ldots,r_{p+1}$. A relative moment estimate with
+the precision in Theorem~\ref{thm:momentstability} gives a marginal
+estimate $\widehat\Delta_v$ with error $\eta_0$; initialize the key
+$U_v=\widehat\Delta_v/(1-\eta_0)$. The coarse upper endpoint in
+\eqref{eq:coarseinteger} is also sufficient and needs only $r_1$
+and $r_{p+1}$. This choice uses a constant moment tolerance even
+when $p$ grows.
+
+For noninteger $s$, let $\widetilde f_s$ be the fixed positive rule
+with relative marginal error $\eta_q$. Apply the integer moment
+certificate to every shifted kernel and sum with its positive
+weights. If this gives an estimate $\widehat\Delta_v$ of the
+surrogate marginal with error $\eta_0$, a valid original-objective
+key is
+\[
+ U_v=\frac{\widehat\Delta_v}{(1-\eta_0)(1-\eta_q)}.
+\]
+All these intervals hold simultaneously on the single initial JL
+and solver event. Their tolerances may be fixed constants; final
+greedy accuracy is controlled by the deterministic refreshes.
+For a general CM function, deterministic initial keys are available
+directly: $f(a)$ for hard grounding and
+$\min\{\beta g(a),f(a)-f_\infty\}$ for soft grounding. These follow
+from the spectral count $0\leq\xi\leq1$ and $\int\xi=\beta$
+in the soft case. They include the heat objective.
+
+\begin{theorem}[Certified CELF with permanent upper bounds]\label{thm:celf}
+Suppose the initial keys bound every marginal at $S_0$ with
+probability at least $1-\delta$. Let $0<\theta<1$.
+Maintain a max-heap of unselected vertices with their current keys.
+At each round, use the following rule:
+\begin{enumerate}
+\item Pop a vertex $v$ with largest key. If it has not been refreshed
+in this round, run Lanczos once from $e_v$ on the current grounded
+matrix, extending that run until T4 gives
+$L_v\leq\Delta_v(S)\leq H_v$ with $L_v\geq(1-\theta)H_v$.
+Replace its key by $\min\{U_v,H_v\}$ and record the round.
+\item Let $U_{\rm next}$ be the largest key left in the heap, or
+zero if it is empty. If $L_v\geq(1-\theta)U_{\rm next}$, select
+$v$. Otherwise return it to the heap and repeat.
+\end{enumerate}
+On the initial event every stored key remains valid throughout all
+adaptive rounds. Every accepted vertex has marginal at least
+$(1-\theta)$ times the current largest marginal. If $R$ counts
+candidate/round refreshes, then
+\begin{equation}\label{eq:Rbound}
+ R\leq\sum_{j=0}^{k-1}(N-j)=kN-\frac{k(k-1)}2.
+\end{equation}
+For $F(U)=\Phi_f(S_0)-\Phi_f(S_0\cup U)$ and
+$\mathrm{OPT}_k=\max_{|U|\leq k}F(U)$, the returned set satisfies
+\begin{equation}\label{eq:lazyguarantee}
+ F(U_k)\geq\left[1-\left(1-\frac{1-\theta}{k}\right)^k\right]
+                  \mathrm{OPT}_k
+ \geq(1-e^{-1}-\theta)\mathrm{OPT}_k
+\end{equation}
+with probability at least $1-\delta$. In particular set
+$\theta=\epsilon$ for the requested guarantee.
+\end{theorem}
+\begin{proof}
+Supermodularity gives
+$\Delta_v(S')\leq\Delta_v(S)$ whenever $S\subseteq S'$ and
+$v\notin S'$. Hence every valid old upper bound is a valid future
+upper bound. A fresh T4 upper bound is valid on the current matrix,
+so the minimum of old and fresh bounds is valid too. Induction
+proves this invariant along the entire adaptive history on the
+single initial event. No cache-update error or adaptive reuse of a
+Gaussian sketch is involved.
+
+At acceptance every other true marginal is at most
+$U_{\rm next}$, while the chosen marginal is at least $L_v$.
+This proves the $(1-\theta)$ maximum-marginal property.
+If a freshly evaluated vertex fails the acceptance test, then
+$H_v\leq L_v/(1-\theta)<U_{\rm next}$, so its new key is strictly
+below another key. A vertex already refreshed in this round, when
+it later becomes heap-top, necessarily passes: its stored lower
+bound is at least $(1-\theta)$ times its key, and that key is at
+least the next key. Thus no vertex is refreshed twice in a round,
+and the procedure terminates after at most $N-j$ refreshes in
+round $j$. Ties use the non-strict acceptance inequality.
+
+T4 intervals converge and are exact at invariant-subspace
+termination. For its integration-free interval $H=L+E$, it is
+sufficient that $E\leq\theta d_*$, where $d_*$ is T4's positive
+lower bound on the marginal: since $H\geq\Delta\geq d_*$,
+$L=H-E\geq(1-\theta)H$. The positive-marginal cases follow from
+T1; zero or constant objectives can be selected directly. Therefore
+each refresh is one finite, possibly extended, Lanczos run.
+
+The gain $F$ is normalized, nonnegative, monotone and submodular.
+For an optimal additional set $O$ with $|O|\leq k$, telescoping
+its additions and using diminishing returns gives
+\[
+ \mathrm{OPT}_k-F(U_j)
+ \leq F(U_j\cup O)-F(U_j)
+ \leq\sum_{v\in O\setminus U_j}\Delta_v(S_0\cup U_j)
+ \leq k\max_v\Delta_v(S_0\cup U_j).
+\]
+Each accepted step closes at least $(1-\theta)/k$ of this gap.
+Induction gives the first inequality in \eqref{eq:lazyguarantee}.
+The bound $(1-(1-\theta)/k)^k\leq e^{-(1-\theta)}$ and
+$e^{\theta-1}-e^{-1}=\int_0^\theta e^{x-1}dx\leq\theta$ give
+the second one. The proof is deterministic conditional on the
+initial event, so the final failure probability is at most $\delta$.
+\end{proof}
+\noindent Numerical check: \texttt{scripts/verify\_t7\_celf.py}.
+
+\begin{theorem}[Refresh-sensitive complexity]\label{thm:lazycost}
+Let $n$ be the largest active matrix dimension, $m_E$ its initial
+edge count, and let $h_r$ be the Lanczos depth of refresh $r$.
+Let $J$ be the largest initial moment order, $q$ the initial shift
+count, $\zeta$ the required moment tolerance, and
+$d=O(\zeta^{-2}\log(nqJ/\delta))$.
+With $L=\lceil J/2\rceil$, initialization uses $2dqL$ SDDM
+right-hand-side solves and polynomially small energy tolerances.
+In terms of the SDDM solve primitive, a valid bound is
+\begin{align}\label{eq:lazycost}
+ T_{\rm init}
+ &=O\left(dqL\,T_{\rm SDDM}(\xi,\delta/(6dqL))
+       +d(m_E+nqL)+nqJ^2\right),\notag\\
+ T_{\rm total}
+ &=T_{\rm init}
+   +O\left(\sum_{r=1}^R\bigl((m_E+n)h_r+C_f(h_r)\bigr)
+       +(N+R+k)\log(N+1)\right).
+\end{align}
+For integer $s=p$, $q=1$, $J=p+1$, and scalar work can be bounded
+by $C_f(h)=O(ph+p^2\log(h+1))$. For a general CM scalar evaluation
+oracle, a conservative choice is $C_f(h)=O(h^3)$ plus scalar
+function-evaluation costs. For fixed integer $p$ and constant
+coarse-initialization tolerance, the SDDM part is nearly linear;
+the refresh part retains $R$ and $h=\max_r h_r$ explicitly as
+$O(R(m_E+n)h)$ plus its displayed scalar work.
+For powers, T4 supplies the sufficient depth
+$O(\sqrt{\kappa_*}((s+1)\log\kappa_*+\log(1/\theta)))$,
+capped by the current dimension, where $\kappa_*$ bounds the
+spectral intervals used by the refreshes. Doubling changes only
+the constant in this depth bound.
+\end{theorem}
+\begin{proof}
+T6's two Gaussian families are advanced through $L$ inverse powers
+at each shift. That is $2dqL$ right-hand-side solves; simultaneous
+JL concentration is over at most $nqJ$ scalar moments. Accumulating
+moments costs $O(dnqL)$, generating the original RHS pairs costs
+$O(d(m_E+n))$, and evaluating the logarithmic recurrence at every
+node/shift costs $O(nqJ^2)$. Coarse integer keys need just the two
+endpoint moments and $O(n)$ final scalar work instead.
+
+An explicit precision dependence also follows from T6. Normalize
+the largest eigenvalue to one, put $\kappa=B/a$, and suppose the
+initial Gaussian RHS Frobenius norms are bounded by $M$ after
+normalization. A sufficient common relative energy tolerance is
+\[
+ \xi=\frac{\zeta}{64L\kappa^{2L}(M+1)}.
+\]
+The exact inverse-power chain has norm at most $\kappa^{L-1}M$
+before its last solve. Inductively its approximate norm is at most
+$\kappa^{L-1}(M+1)$. The energy-to-residual inequality in T6
+then bounds each residual by
+$\zeta/(64L\kappa^{L+1/2})\leq\zeta/(64L\kappa^L)$.
+The recurrence $E_j\leq\kappa(E_{j-1}+\rho_j)$ bounds every
+chain error by $\zeta/64$. This meets T6's norm-error budgets;
+after shifting, normalized $\sqrt t$ coefficients are at most one.
+Thus $\log(1/\xi)=O(L\log\kappa+log(L(M+1)/\zeta))$.
+The Gaussian norm event gives $M=O(\sqrt{n/\delta})$ with the
+allocated failure probability. Fixed $J$ yields logarithmic
+precision factors; growing $J$ retains its $L\log\kappa$ term.
+
+Each refresh uses $h_r$ masked sparse products and vector
+recurrences, costing $O((m_E+n)h_r)$. Evaluate stopping conditions
+at doubling depths and at breakdown. For integer powers, repeated
+tridiagonal solves compute $r_1(T),\ldots,r_{p+1}(T)$ in $O(ph)$,
+and their logarithmic recurrence costs $O(p^2)$. Summing over the
+doubling checks gives $C_f(h)$ as stated. The positive small-matrix
+representation is also available. General CM functions may instead
+use the small trace differences and T4's analytic width, giving
+the conservative cubic bound. At full termination the complement's
+trace cancels exactly as in T3.
+
+Every unsuccessful fresh evaluation causes one heap reinsertion;
+every successful selection removes one vertex. A previously fresh
+vertex is accepted when it returns to the top. Therefore heap
+operations number $O(N+R+k)$ and each costs $O(\log(N+1))$.
+Grounding is implemented by diagonal masks or restricted coordinates,
+so no dense inverse maintenance is required. The three-term Lanczos
+count is in exact arithmetic; explicit full reorthogonalization
+adds $O(n\sum_r h_r^2)$ if chosen. This proves \eqref{eq:lazycost}.
+\end{proof}
+\noindent Numerical check: \texttt{scripts/verify\_t7\_complexity.py}.
+
+\paragraph{The $s=1$ comparison.}
+At $s=1$, this algorithm has one zero shift and two initial moments.
+For constant initialization tolerance its cost is
+$\widetilde O(m_E+n)+O((m_E+n)\sum_r h_r)$, plus heap and scalar
+work. ApproxGreedy's original analysis~\cite{li2019}, including
+its explicitly stated error dependence, gives
+$\widetilde O(km_E\epsilon^{-2})$ using nearly-linear SDDM solves
+to re-estimate all marginals each round. These sparse-work bounds
+match in order when $\sum_r h_r=\widetilde O(k\epsilon^{-2})$;
+the refresh-sensitive bound keeps the realized sum explicit.
+The unconditional CELF refresh bound is \eqref{eq:Rbound}.
+T7b supplies an explicit fresh all-node variant with an unconditional
+$\widetilde O(km_E\epsilon^{-2})$ bound at $p=1$.
+
+ForestCFCM and SchurCFCM~\cite{xia2025}, Theorems 3.11 and 4.7,
+display the graph-dependent bound
+$\widetilde O(k\epsilon^{-2}n D^2d_{\max}^{2D+2})$ under their
+stated realistic-graph walk-cost assumptions, where $D$ is graph
+diameter. Their adaptive sampling and Schur auxiliary roots target
+these graph-dependent costs. The quantities to compare with our
+refresh work are their forest sample counts and walk costs versus
+$\sum_r h_r$ and sparse products. The original CFCC papers also
+select the first leader; their free-first-leader guarantees use a
+different normalization. Equation~\eqref{eq:lazyguarantee} compares
+sets of $k$ additions to the same fixed admissible seed $S_0$.
+
+\section{T7b: fresh all-node sketches and a polynomial exponent factor}
+The positive reciprocal series in T7 sharpens the earlier
+absolute-monomial perturbation bound. This sharpening uses only
+moment accuracy; perturbed moments may be mutually inconsistent.
+
+\begin{theorem}[Polynomial-precision integer marginal estimation]
+\label{thm:polymoment}
+Use the notation of Proposition~\ref{prop:integerpositive}, at any
+fixed shift. If $|\widehat r_j/r_j-1|\leq\zeta<1$ for
+$j=1,\ldots,p+1$, the T3 logarithmic recurrence satisfies
+\begin{equation}\label{eq:polymoment}
+ \left|\frac{\widehat q_p}{q_p}-1\right|
+ \leq \left(1+\frac{4\zeta}{1-\zeta}\right)^p-1.
+\end{equation}
+For $0<\eta\leq1$, choosing $\zeta\leq\eta/(16p)$ makes this
+error at most $\eta$. The assertion holds for soft and hard grounding,
+independently of dimension and condition number.
+\end{theorem}
+\begin{proof}
+Work with formal power series through degree $p$. Set
+\[
+ F(z)=1+\sum_{j\geq1}a_jz^j,\qquad
+ D(z)=\sum_{j\geq1}d_jz^j.
+\]
+The determinant identities in Proposition~\ref{prop:integerpositive}
+give $F^{-1}=1-D$, with $a_j,d_j\geq0$, and hence
+\begin{equation}\label{eq:renewalmoment}
+ a_j=d_j+\sum_{i=1}^{j-1}a_i d_{j-i}.
+\end{equation}
+Also $q_p=p[z^p]\log F$, $q_p\geq a_p$, and Holder's inequality
+for the probability measure constructed there gives
+$a_{j_1}\cdots a_{j_\ell}\leq a_p$ whenever
+$j_1+\cdots+j_\ell=p$ and $j_i\geq1$.
+
+Put $\widehat a_j=\widehat r_{j+1}/(\beta^{-1}+\widehat r_1)$.
+Positivity of the exact penalty yields
+\[
+ \frac{1-\zeta}{1+\zeta}\leq\frac{\widehat a_j}{a_j}
+ \leq\frac{1+\zeta}{1-\zeta},\qquad
+ |\widehat a_j-a_j|\leq\alpha a_j,\quad
+ \alpha=\frac{2\zeta}{1-\zeta}.
+\]
+For $E(z)=\sum_{j=1}^p(\widehat a_j-a_j)z^j$, define
+$H=E/F=E(1-D)$. For $1\leq j\leq p$, identity
+\eqref{eq:renewalmoment} implies
+\[
+ |[z^j]H|\leq\alpha\left(a_j+
+          \sum_{i=1}^{j-1}a_i d_{j-i}\right)
+ =\alpha(2a_j-d_j)\leq2\alpha a_j.
+\]
+The formal identity $\log(F+E)-\log F=\log(1+H)$ then gives
+\begin{align*}
+ |\widehat q_p-q_p|
+ &\leq p\sum_{\ell=1}^p\frac{(2\alpha)^\ell}{\ell}
+   \sum_{\substack{j_1+\cdots+j_\ell=p\\j_i\geq1}}
+            a_{j_1}\cdots a_{j_\ell}\\
+ &\leq a_p\sum_{\ell=1}^p\binom p\ell(2\alpha)^\ell
+ =a_p((1+2\alpha)^p-1).
+\end{align*}
+Division by $q_p\geq a_p$ proves \eqref{eq:polymoment}.
+All identities concern finitely many coefficients, so convergence
+of a series or realizability of the perturbed moments is unnecessary.
+Finally $\zeta\leq\eta/(16p)$ implies
+$4p\zeta/(1-\zeta)\leq4\eta/15$.
+Thus the bound is at most $e^{4\eta/15}-1\leq\eta$:
+convexity bounds it by $\eta(e^{4/15}-1)$ on $[0,1]$, and
+$e^{4/15}\leq(1-4/15)^{-1}=15/11<2$.
+\end{proof}
+\noindent Numerical check: \texttt{scripts/verify\_t7b\_stability.py}.
+
+\paragraph{FreshRoundGreedy (all-node worst-case variant).}
+Fix a seed $S_0$, $k$ additional vertices, integer $p\geq1$,
+$0<\epsilon\leq1/2$, and $0<\delta<1$. Write $n$ for an upper
+bound on the active dimension and set
+\begin{equation}\label{eq:freshparams}
+ \eta=\epsilon/2,\quad\zeta=\epsilon/(32p),\quad
+ J=p+1,\quad L=\lceil J/2\rceil,\quad
+ d=\left\lceil128\zeta^{-2}\log\frac{12nJk}{\delta}\right\rceil.
+\end{equation}
+At each of the $k$ rounds:
+\begin{enumerate}
+\item Form the current SDDM matrix $A$ and its sparse factor
+$A=C^\top C$ as in T6. Draw entirely new independent Gaussian
+families $Q,Z$, with variance $1/d$ entries, and put $P=ZC$.
+These families and the solver randomness are independent of all
+previous rounds.
+\item Apply T6's repeated solves to these families through depth
+$L$, obtaining every $r_{j,v}=e_v^\top A^{-j}e_v$, $1\leq j\leq J$,
+with relative tolerance $\zeta$. Specifically, squared columns of
+$QA^{-\ell}$ estimate order $2\ell$, and those of $PA^{-\ell}$
+estimate order $2\ell-1$. Discard orders above $J$.
+\item Evaluate $\widehat\Delta_v=\widehat q_{p,v}(0)$ for every
+eligible vertex by the scalar logarithmic recurrence, select a
+maximizer, and ground it. Discard this round's sketches.
+\end{enumerate}
+Each round's conditional failure budget is $\delta/k$, including
+all its candidate estimates and all its solves.
+
+\begin{theorem}[Fresh-round all-node greedy guarantee]\label{thm:freshgreedy}
+FreshRoundGreedy returns $k$ additional vertices $U_k$ with
+\begin{equation}\label{eq:freshgain}
+ \Phi_p(S_0)-\Phi_p(S_0\cup U_k)
+ \geq(1-e^{-1}-\epsilon)
+   \max_{|U|\leq k}\bigl(\Phi_p(S_0)-\Phi_p(S_0\cup U)\bigr)
+\end{equation}
+with probability at least $1-\delta$, for hard and soft grounding.
+\end{theorem}
+\begin{proof}
+Condition on the complete history before round $i$. Its matrix,
+factor, and eligible vertices are now fixed. The new Gaussian
+families therefore have exactly the covariance and chi-squared
+laws used in T6. There are at most $nJ$ moment estimates;
+\eqref{eq:chisquare}, with deviation $\zeta/4$, and
+\eqref{eq:freshparams} give conditional JL failure at most
+\[
+ 2nJ\exp(-d\zeta^2/128)\leq\delta/(6k).
+\]
+The residual/norm budgets in Theorem~\ref{thm:freshcost} give
+conditional failure at most $\delta/(3k)$ for each of the Gaussian
+norm and solver events. Their intersection implies relative moment
+error at most $\zeta$, by T6. In particular the total conditional
+failure is at most $\delta/k$, for every history.
+
+Let $E_i$ be this round's simultaneous event. Taking conditional
+expectations and then a union bound gives
+\[
+ \Prob\left(\bigcup_{i=1}^k E_i^c\right)
+ \leq\sum_{i=1}^k\E\bigl[\Prob(E_i^c\mid\mathcal H_{i-1})\bigr]
+ \leq\delta.
+\]
+Independence between the events $E_i$ themselves is unnecessary;
+it is the fresh random draws conditional on the history that
+justify each probability bound.
+
+On their intersection, Theorem~\ref{thm:polymoment} gives
+$(1-\eta)\Delta_v\leq\widehat\Delta_v\leq(1+\eta)\Delta_v$
+for all eligible vertices in every round. If $v$ maximizes the
+estimate and $u$ maximizes the true marginal, then
+\[
+ \Delta_v\geq\frac{\widehat\Delta_v}{1+\eta}
+ \geq\frac{1-\eta}{1+\eta}\Delta_u
+ \geq(1-\epsilon)\Delta_u.
+\]
+The normalized seeded gain is monotone and submodular by T1.
+The same gap-closing induction as in Theorem~\ref{thm:celf}
+therefore gives the stronger factor
+$1-(1-(1-\epsilon)/k)^k\geq1-e^{-1}-\epsilon$.
+For hard grounding the last allowed deletion, if any, uses the
+one-dimensional marginal and leaves zero trace; no inverse of
+an empty matrix is formed.
+\end{proof}
+\noindent Numerical check: \texttt{scripts/verify\_t7b\_greedy.py}.
+
+\begin{theorem}[Worst-case cost with explicit polynomial dependence]
+\label{thm:freshcost}
+Suppose certified bounds $0<a\leq\lambda_{\min}(A)$ and
+$\lambda_{\max}(A)\leq B$ hold for every round, and put $\kappa=B/a$.
+Using the nearly-linear SDDM primitive of T6, FreshRoundGreedy has
+\begin{equation}\label{eq:freshcost}
+ T=\widetilde O\bigl(p^4 k(m_E+n)\epsilon^{-2}\bigr).
+\end{equation}
+Thus one explicit choice is $f(p)=p^4$; on connected graphs
+$m_E+n=O(m_E)$ gives the requested
+$\widetilde O(f(p)km_E\epsilon^{-2})$.
+The suppressed factors are logarithmic in
+$n,k,p,\kappa,1/\epsilon,1/\delta$, with no suppressed polynomial
+factor in $p$. The count of SDDM right-hand-side solves alone is
+$O(kdL)=\widetilde O(p^3k\epsilon^{-2})$.
+These are input-wise worst-case bounds, independent of the observed
+CELF refresh count, in the standard capped high-probability solver
+model; solver failure is included in $\delta$.
+\end{theorem}
+\begin{proof}
+Normalize every matrix by the common $B$, and also replace the
+soft penalty by $\beta/B$. All original marginal values acquire
+the same positive factor $B^{-p}$ on converting back, so every
+selection is unchanged. The normalized spectrum is in
+$[1/\kappa,1]$. Its factor satisfies
+$\E\|P\|_F^2=\tr A\leq n$ and $\E\|Q\|_F^2\leq n$.
+Set
+\begin{equation}\label{eq:freshprecision}
+ M=\sqrt{6nk/\delta},\qquad
+ \xi=\frac{\zeta}{64L\kappa^{2L}(M+1)}.
+\end{equation}
+Markov's inequality gives simultaneous starting norms at most $M$
+except with conditional probability $\delta/(3k)$. Use relative
+energy accuracy $\xi$ at every inverse-power solve, with per-solve
+conditional failure at most $\delta/(6kdL)$. There are at most
+$2dL$ such solves per round. The norm test and a capped solve budget
+may terminate with an arbitrary feasible answer on failure, so the
+work bound also holds on unsuccessful executions.
+
+For either family, let $V_0$ be its starting batch and $\widehat V_j$
+its approximate chain. Write $\rho_j=\|\widehat V_j A-
+\widehat V_{j-1}\|_F$ and
+$E_j=\|\widehat V_j-V_0A^{-j}\|_F$. Relative energy accuracy
+implies $\rho_j\leq\xi\sqrt\kappa\|\widehat V_{j-1}\|_F$.
+Inductively $\|\widehat V_{j-1}\|_F\leq
+\kappa^{j-1}(M+1)$, whence for $j\leq L$
+\[
+ \rho_j\leq\frac{\zeta}{64L\kappa^{L+1/2}}
+ \leq\frac{\zeta}{64L\kappa^L},\qquad
+ E_j\leq\kappa(E_{j-1}+\rho_j)\leq\zeta/64.
+\]
+The last inequality follows by summing at most $L$ terms, each
+amplified by at most $\kappa^L$, starting with $E_0=0$.
+It also closes the stated induction on approximate batch norms.
+Every normalized target moment is at least one. Thus these
+absolute column errors, combined with the relative $\zeta/4$
+JL event, meet T6's sufficient $\zeta/8$ norm budgets and give
+relative moment error at most $\zeta$.
+
+There are at most $2dL$ solves per round, each on a matrix with
+$O(m_E+n)$ nonzeros. Sparse Gaussian-factor multiplication and
+moment accumulation cost $O(d(m_E+nL))$ per round. The scalar
+recurrences cost $O(np^2)$ and the maximization costs $O(n)$.
+The precision satisfies
+\[
+ \log(1/\xi)=2L\log\kappa+
+       \log\bigl(64L(M+1)/\zeta\bigr).
+\]
+A nearly-linear SDDM solve costs
+$\widetilde O((m_E+n)\log(1/\xi))$, including logarithmic
+failure-probability factors. Since $d=\widetilde O(p^2\epsilon^{-2})$
+and $L\leq p$, explicitly counting this precision cost gives
+\[
+ \widetilde O\bigl(k(m_E+n)p^2L^2\epsilon^{-2}\bigr)
+       +O(knp^2)
+ \subseteq\widetilde O\bigl(p^4k(m_E+n)\epsilon^{-2}\bigr).
+\]
+The $p^3$ solve count and the extra factor from solve precision are
+therefore distinguished. The argument applies to every input and
+every adaptive matrix sequence on the simultaneous success event.
+\end{proof}
+\noindent Numerical check: \texttt{scripts/verify\_t7b\_complexity.py}.
+
+\paragraph{Algorithmic role and the $p=1$ comparison.}
+CELF supplies practical acceleration by avoiding most candidate
+refreshes and using permanent upper bounds. FreshRoundGreedy
+supplies the worst-case bound \eqref{eq:freshcost}. Each has its
+own proved guarantee. At $p=1$, $J=2$, $L=1$, and
+$\Delta_v=r_{2,v}/(\beta^{-1}+r_{1,v})$, so fresh all-node
+estimation uses two Gaussian solve families per round and costs
+$\widetilde O(km_E\epsilon^{-2})$ on connected graphs. This is
+the same asymptotic order as Li et al.'s ApproxGreedy~\cite{li2019}.
+The comparison is between the marginal-selection phases;
+\eqref{eq:freshgain} uses the common prescribed seed $S_0$,
+whereas their complete CFCC procedure also chooses its first leader.
+For growing $p$, the positive reciprocal representation replaces
+the earlier $\zeta=O(\eta/(p2^p))$ sufficient tolerance by
+$\zeta=O(\eta/p)$, eliminating the $4^p$ sketch-size factor.
+
+\section{T8: positioning}
+Li et al.~\cite{li2019} establish supermodularity and scalable greedy
+selection for group current-flow closeness, the hard-grounding
+$s=1$ member of our family. Xia and Zhang~\cite{xia2025} accelerate
+that objective through rooted forests and Schur complements, while
+Wang et al.~\cite{wang2026} study group Markov centrality based on
+hitting times. We study node grounding for the full completely
+monotone trace family. Its $s=1$ member enables direct comparison
+on group current-flow closeness, while higher inverse powers
+increase sensitivity to poorly grounded spectral modes.
+For hard grounding, the computational core maintains current-matrix
+moment sketches under node removal and retains refreshed moments
+through exact algebraic updates. A uniform sketch event supports
+adaptive reuse and budgeted candidate refinement. Integer marginals
+admit positive representations and explicit moment-error bounds;
+fresh-round sketches and Gauss--Radau lazy certification provide
+complementary guaranteed algorithms. FastFrac~\cite{fastfrac}
+instead adds edges
+under positive fractional traces, and POLAR~\cite{polar} treats
+negative fractional edge objectives through submodularity-ratio
+analysis. Grounding changes killing rather than transition rates,
+yielding the stronger diminishing-drop structure used here.
+The inverse-power spectral limit connects this family to the
+grounded-eigenvalue objective of Zhou et al.~\cite{zhou2023}, with
+explicit fixed-budget baseline-aware and augmented-budget spectral
+guarantees.
+
+\noindent Numerical checks: \texttt{scripts/verify\_t8\_positioning.py}
+and the four T12 checks below.
+
+\section{T9: inverse powers and the smallest eigenvalue}
+All matrices in this section have positive dimension. For hard
+grounding, budgeted sets leave at least one ungrounded vertex.
+
+\begin{theorem}[Uniform inverse-power spectral rate]\label{thm:spectralrate}
+Let $X\succ0$ have dimension $d$ and ordered eigenvalues
+$\lambda_1\leq\cdots\leq\lambda_d$. For every $s>0$,
+\begin{equation}\label{eq:spectralrate}
+ \lambda_1^{-1}\leq(\tr X^{-s})^{1/s}
+          \leq d^{1/s}\lambda_1^{-1}.
+\end{equation}
+The relative excess is at most $e^{(\log d)/s}-1$; it is at most
+$\eta$ whenever $s\geq\log d/\log(1+\eta)$.
+If $\lambda_1$ has multiplicity $r<d$ and
+$z=\lambda_1/\lambda_{r+1}<1$, then
+\[
+ 0\leq\log\bigl(\lambda_1(\tr X^{-s})^{1/s}\bigr)
+           -\frac{\log r}{s}
+ \leq\frac{d-r}{rs}z^s.
+\]
+At a fixed cardinality and matrix dimension $d$, any set whose
+power-trace objective is within a multiplicative factor $\alpha\geq1$
+of its minimum satisfies
+\begin{equation}\label{eq:alphaspectral}
+ \lambda_{\min}(X_{\rm out})
+     \geq(\alpha d)^{-1/s}\lambda_k^*,
+\end{equation}
+where $\lambda_k^*$ is the maximum smallest eigenvalue at that
+cardinality and the same seed. In particular an exact power-trace
+minimizer has factor $d^{-1/s}$.
+\end{theorem}
+\begin{proof}
+Factor the smallest eigenvalue out of the trace:
+\[
+ (\tr X^{-s})^{1/s}
+ =\lambda_1^{-1}
+    \left(\sum_{i=1}^d(\lambda_1/\lambda_i)^s\right)^{1/s}.
+\]
+The sum lies between 1 and $d$, giving \eqref{eq:spectralrate}
+and its stated rate. With multiplicity $r$ it lies between $r$
+and $r+(d-r)z^s$. Taking logarithms and using
+$\log(1+x)\leq x$ proves the refined inequality. If $r=d$, the
+sum equals $d$ exactly.
+
+Let $O_\lambda$ maximize the smallest eigenvalue and $O_s$ minimize
+the trace, at the same budget. Then
+\[
+ \lambda_{\min}(X_{\rm out})^{-s}
+ \leq\Phi_s({\rm out})\leq\alpha\Phi_s(O_s)
+ \leq\alpha\Phi_s(O_\lambda)\leq\alpha d(\lambda_k^*)^{-s}.
+\]
+Taking the inverse $s$th root proves \eqref{eq:alphaspectral}.
+The scalar root is used to compare minimizers and spectral values;
+the greedy gain remains defined using $\Phi_s=\tr X^{-s}$.
+\end{proof}
+\noindent Numerical check: \texttt{scripts/verify\_t9\_spectral\_limit.py}.
+
+\begin{theorem}[Baseline-aware translation of the gain guarantee]\label{thm:gaintranslation}
+Fix $s>0$, a seed, and $k$ additional anchors. Put
+$B_s=\Phi_s(S_0)$, $\Psi_s^*=\min_{|U|=k}\Phi_s(S_0\cup U)$,
+and $C_s=B_s/\Psi_s^*$. Let $d$ be the common final dimension
+and $\lambda_k^*$ the optimal smallest eigenvalue.
+If a returned set satisfies a gain factor $\gamma\in(0,1]$, put
+$\rho=1-\gamma$. Then
+\begin{align}
+ \frac{\lambda_{\min}(X_{\rm out})}{\lambda_k^*}
+ &\geq\left[\rho B_s(\lambda_k^*)^s+\gamma d\right]^{-1/s}
+ \label{eq:gaintranslation}\\
+ &\geq\left[d(\rho C_s+\gamma)\right]^{-1/s}.\notag
+\end{align}
+Thus a contrast bound $C_s\leq C$ at the chosen exponent and
+\[
+ s\geq\frac{\log(d(\rho C+\gamma))}{\log(1+\eta)}
+\]
+certify a factor $1/(1+\eta)$ on the smallest eigenvalue.
+For CELF take $\gamma$ from \eqref{eq:lazyguarantee}; the statement
+holds with probability at least $1-\delta$.
+Without a baseline-contrast condition, any fixed gain factor
+$\gamma<1$ alone admits arbitrarily small spectral ratios, even on
+a connected weighted four-vertex star and at every integer exponent
+$s\geq1$.
+\end{theorem}
+\begin{proof}
+The gain guarantee is exactly the residual-objective inequality
+\[
+ \Phi_s({\rm out})\leq\rho B_s+\gamma\Psi_s^*.
+\]
+Since $\Psi_s^*\leq d(\lambda_k^*)^{-s}$ and
+$\lambda_{\min}(X_{\rm out})^{-s}\leq\Phi_s({\rm out})$,
+the first spectral bound follows. Also
+$B_s(\lambda_k^*)^s=C_s\Psi_s^*(\lambda_k^*)^s\leq C_s d$,
+giving the second bound and the stated sufficient exponent.
+Only the CELF initial event is random.
+
+For the final assertion, take a star with center 0, leaves 1,2,3,
+and respective edge weights $b/2,b,1$, where $0<b<1$. The fixed
+seed is $S_0=\{0\}$, so the current matrix is
+$\diag(b/2,b,1)$. Two additional anchors are allowed.
+The optimal choice $\{1,2\}$ leaves the eigenvalue 1; the choice
+$\{1,3\}$ leaves the eigenvalue $b$.
+Their gain ratio is exactly
+\[
+ \frac{(2/b)^s+1}{(2/b)^s+b^{-s}}
+ =\frac{2^s+b^s}{2^s+1}\geq\frac23>1-e^{-1}
+ \qquad(s\geq1).
+\]
+Nevertheless the spectral ratio is $b$, which tends to zero.
+For a larger prescribed $\gamma<1$, replace the weight $b/2$ by
+$b/M$ with integer $M\geq\max\{2,\gamma/(1-\gamma)\}$.
+The gain ratio is then $(M^s+b^s)/(M^s+1)\geq\gamma$ for
+every integer $s\geq1$, and the spectral ratio is still $b$.
+This is a counterexample to an implication from the gain factor
+alone: it distinguishes that factor from the multiplicative
+trace condition in \eqref{eq:alphaspectral}.
+For fixed $\rho>0$ and $\lambda_k^*>\lambda_{\min}(X_{S_0})$,
+the first bound in \eqref{eq:gaintranslation} tends to
+$\lambda_{\min}(X_{S_0})/\lambda_k^*$ as $s\to\infty$, by
+Theorem~\ref{thm:spectralrate}. Increasing the exponent makes the
+surrogate sharper while the baseline term remains explicit.
+\end{proof}
+\noindent Numerical check: \texttt{scripts/verify\_t9\_gain\_translation.py}.
+
+\begin{corollary}[A spectral bicriteria guarantee]\label{cor:spectralbudget}
+Compare with the optimal set of $k$ additional anchors, with
+remaining dimension $d_k$. Let the initial matrix have dimension
+$d_0$, let $a>0$ lower-bound its smallest eigenvalue, and let
+$B$ upper-bound $\lambda_k^*$. Run the same certified lazy rule
+with step factor $1-\theta$ for $\ell\geq k$ rounds.
+Whenever the budget is feasible and hard grounding leaves a vertex,
+\begin{equation}\label{eq:budgetresidual}
+ \Phi_s(S_\ell)
+ \leq e^{-(1-\theta)\ell/k}B_s+\Psi_{s,k}^*.
+\end{equation}
+For a target $\eta>0$, choose an integer
+\begin{align}
+ s&\geq\left\lceil\frac{\log(2d_k)}{\log(1+\eta)}\right\rceil,
+ \label{eq:budgetchoices}\\
+ \ell&\geq\max\left\{k,
+ \left\lceil\frac{k}{1-\theta}
+       \left(\log\frac{d_0}{d_k}+s\log\frac Ba\right)\right\rceil
+              \right\}.\notag
+\end{align}
+Then, on the same probability-$1-\delta$ event,
+$\lambda_{\min}(X_{S_\ell})\geq\lambda_k^*/(1+\eta)$.
+\end{corollary}
+\begin{proof}
+The maximum-marginal argument in Theorem~\ref{thm:celf} may
+compare every round with a fixed size-$k$ optimum, even after
+more than $k$ rounds. Its residual recurrence is
+\[
+ \Phi_s(S_{j+1})-\Psi_{s,k}^*
+ \leq\left(1-\frac{1-\theta}{k}\right)
+               (\Phi_s(S_j)-\Psi_{s,k}^*).
+\]
+If the parenthesized gap is negative, monotonicity also implies
+this inequality. Iteration and the exponential bound prove
+\eqref{eq:budgetresidual}. Now $B_s\leq d_0a^{-s}$ and
+$\Psi_{s,k}^*\leq d_k(\lambda_k^*)^{-s}$.
+The second choice in \eqref{eq:budgetchoices} bounds the first
+term in \eqref{eq:budgetresidual} by
+$d_k B^{-s}\leq d_k(\lambda_k^*)^{-s}$. Therefore
+\[
+ \lambda_{\min}(X_{S_\ell})^{-s}
+ \leq\Phi_s(S_\ell)\leq2d_k(\lambda_k^*)^{-s}.
+\]
+The first choice of exponent proves the spectral factor.
+The permanent-key argument remains valid for all $\ell$ rounds
+without additional adaptive-sketch events. For growing integer
+$s$, the coarse endpoint-moment initialization avoids the
+$2^s$ precision factor of the fine logarithmic-polynomial estimate;
+the power-chain precision term in Theorem~\ref{thm:lazycost}
+continues to be counted explicitly.
+\end{proof}
+\noindent Numerical check: \texttt{scripts/verify\_t9\_bicriteria.py}.
+
+\paragraph{Relation to the grounded-eigenvalue objective.}
+Zhou et al.~\cite{zhou2023} establish that the smallest grounded
+eigenvalue is monotone but not submodular. The inverse-power family
+provides supermodular trace objectives at every finite exponent,
+together with a uniform approximation to the reciprocal smallest
+eigenvalue after the monotone scalar root. Equations
+\eqref{eq:gaintranslation} and \eqref{eq:budgetchoices} quantify,
+respectively, the fixed-budget baseline-aware guarantee and the
+resource-augmented spectral guarantee furnished by this route.
+
+\section{T10: a fixed-budget spectral approximation barrier}
+We quantify the cubic-cover reduction of Zhou et al.~\cite{zhou2023}
+with a $3$ versus $2$ gap and extend it to a prescribed seed.
+For a maximization problem, a $\gamma$-approximation means a
+feasible set of exactly the given budget with value at least
+$\gamma$ times optimum, where $0<\gamma\leq1$.
+
+\begin{theorem}[Cubic spectral gap and its seeded extension]
+\label{thm:spectralhardness}
+Unless $\mathrm P=\mathrm{NP}$, for every fixed $\gamma>2/3$
+there is no polynomial-time $\gamma$-approximation to
+\[
+ \max_{|S|=k}\lambda_{\min}(L_{-S})
+\]
+on connected unweighted cubic graphs, with $1\leq k<n$ supplied
+as input. The same barrier holds on connected positively weighted
+graphs with a prescribed singleton seed, $k$ additional anchors,
+and any fixed rational $\sigma\geq0$ for
+$\lambda_{\min}((L+\sigma I)_{-(S_0\cup U)})$.
+For randomized algorithms succeeding with probability at least
+$2/3$ on every input, the corresponding consequence is
+$\mathrm{NP}=\mathrm{RP}$.
+\end{theorem}
+\begin{proof}
+Use the NP-complete vertex-cover problem on connected cubic
+graphs; it remains NP-complete even with planarity and
+3-connectivity~\cite{uehara1996}. A cover of size at most $k$ can
+be enlarged to size exactly $k<n$.
+For every nonempty $S\subsetneq V$, the grounded matrix is
+\[
+ L_{-S}=3I-B_U,\qquad U=V\setminus S,
+\]
+where $B_U$ is the induced adjacency matrix. If $S$ is a vertex
+cover then $B_U=0$ and its smallest eigenvalue is exactly 3.
+If $S$ is not a cover, take an uncovered edge $uv$ and the unit
+vector $x=(e_u+e_v)/\sqrt2$ on $U$. Direct evaluation gives
+$x^\top L_{-S}x=2$, so its smallest eigenvalue is at most 2.
+Every grounded matrix also has smallest eigenvalue at most 3,
+by a coordinate Rayleigh quotient. Thus the optimum is 3 on
+YES instances and at most 2 on NO instances.
+
+A $\gamma>2/3$ approximation on a YES instance returns value
+strictly larger than 2, so it must return a vertex cover. Check
+this combinatorial property of the returned set. On a NO instance
+no returned size-$k$ set can pass the check. This decides the
+NP-complete problem without computing or comparing eigenvalues.
+It is a polynomial many-one gap reduction with an exact integral
+YES/NO separation. The budget is part of the input; the argument
+applies to algorithms obeying that budget exactly.
+
+For the prescribed-seed version, take the same cubic graph $H$,
+scale each original edge weight to a positive integer $W$, and add
+a new seed vertex $z$ joined to every original vertex with weight
+one. Ground $z$ in advance and choose $k$ additional original
+vertices. For $U$ the remaining original vertices the matrix is
+\begin{equation}\label{eq:seedhardgap}
+ (L+\sigma I)[U,U]=(3W+1+\sigma)I-W B_U.
+\end{equation}
+Let $D=3W+1+\sigma$. A cover gives eigenvalue $D$; an uncovered
+edge gives Rayleigh quotient $D-W$. Choose the constant integer
+$W$ large enough that
+\[
+ (3\gamma-2)W>(1-\gamma)(1+\sigma).
+\]
+This is exactly $\gamma D>D-W$ and is possible for every fixed
+$\gamma>2/3$. For fixed $\gamma,\sigma$, the integer $W$ is a
+constant independent of the source instance, so construction and
+encoding are polynomial. The graph is connected and all its
+weights are positive; the mandatory seed makes this a direct
+many-one reduction for the same seeded formulation used in T9.
+Again the output is checked only for vertex coverage in $H$.
+
+For a randomized approximation, the cover check accepts every
+YES instance with probability at least $2/3$ and never accepts a
+NO instance. It therefore places this NP-complete decision problem
+in $\mathrm{RP}$. Closure under polynomial reductions and
+$\mathrm{RP}\subseteq\mathrm{NP}$ yield
+$\mathrm{NP}=\mathrm{RP}$.
+\end{proof}
+\noindent Numerical check: \texttt{scripts/verify\_t10\_hardness.py}.
+
+\subsection{Budget-preserving amplification by parallel paths}
+The following construction leaves the anchor budget unchanged and
+allows every new internal vertex to be selected. For an integer
+$\ell\geq2$, define
+\begin{equation}\label{eq:pathconstants}
+ a_\ell=2-2\cos\frac{\pi}{2\ell-1},\qquad
+ b_\ell=2-2\cos\theta_\ell,
+\end{equation}
+where $\theta_\ell$ is the unique root in
+$(0,\pi/(2\ell-1))$ of
+\begin{equation}\label{eq:pathroot}
+ 3\cos((\ell-\tfrac12)\theta)=\cos(\theta/2).
+\end{equation}
+
+\begin{lemma}[Parallel-path YES/NO bounds]\label{lem:pathamplification}
+Let $H$ be a connected simple cubic graph. Form $G_{M,\ell}$ by
+replacing every edge of $H$ by $M$ internally vertex-disjoint
+paths of length $\ell$, with unit edge weights. The original
+vertices remain as the paths' endpoints. Then:
+\begin{enumerate}
+\item If $S$ is an original vertex cover with $|S|<|V(H)|$, then
+\begin{equation}\label{eq:pathyes}
+ \lambda_{\min}(L(G_{M,\ell})_{-S})
+ \geq\frac{a_\ell}{1+2(1+a_\ell)/(3M)}.
+\end{equation}
+\item Let $T$ be any set of $k$ vertices of $G_{M,\ell}$, including
+arbitrary internal vertices. If $T\cap V(H)$ is not a cover and
+$M(\ell-1)\geq8k$, then
+\begin{equation}\label{eq:pathno}
+ \lambda_{\min}(L(G_{M,\ell})_{-T})
+ \leq b_\ell+\frac{24k}{M(\ell-1)}.
+\end{equation}
+\item The constants satisfy $0<b_\ell<a_\ell\leq1$,
+$b_\ell/a_\ell>c_*$ for every finite $\ell$, and
+\begin{equation}\label{eq:pathlimit}
+ \lim_{\ell\to\infty}\frac{b_\ell}{a_\ell}
+ =c_*:=\left(\frac{2\arccos(1/3)}{\pi}\right)^2.
+\end{equation}
+\end{enumerate}
+\end{lemma}
+\begin{proof}
+Put $h=\ell-1$. The quadratic form
+\[
+ q(y)=\sum_{j=1}^{h-1}(y_j-y_{j+1})^2+y_h^2
+\]
+has smallest eigenvalue $a_\ell$. Indeed its matrix is the path
+tridiagonal with first diagonal entry 1, all other diagonal entries
+2, and off-diagonals $-1$ (for $h=1$ the matrix is $[1]$).
+Its eigenvectors have entries $\cos((j-\tfrac12)\vartheta)$,
+with $\vartheta=(2r-1)\pi/(2h+1)$, $r=1,\ldots,h$;
+substitution gives the distinct eigenvalues $2-2\cos\vartheta$.
+Thus $q(y)\geq a_\ell\|y\|^2$.
+
+When $S$ is a cover, each component after grounding is either a
+star with $3M$ length-$\ell$ rays ending at ground, or an internal
+path with both endpoints grounded. For a star let $x$ be its center
+value, $y^{(r)}$ the internal values of ray $r$, and write
+$Y=\sum_r\|y^{(r)}\|^2$. Its energy is
+\[
+ E=\sum_{r=1}^{3M}\bigl((x-y^{(r)}_1)^2+q(y^{(r)})\bigr)
+ \geq a_\ell Y.
+\]
+Averaging $x^2\leq2(x-y^{(r)}_1)^2+2(y^{(r)}_1)^2$ over the
+rays yields $x^2\leq2(E+Y)/(3M)$. Hence
+\[
+ x^2+Y\leq\left(\frac{1+2/(3M)}{a_\ell}+
+                    \frac2{3M}\right)E.
+\]
+The Rayleigh principle gives \eqref{eq:pathyes}. A path grounded
+at both ends has energy $q(y)+y_1^2\geq a_\ell\|y\|^2$,
+so the same lower bound holds for the whole matrix.
+
+For the NO bound, choose an original uncovered edge $uv$.
+Give $u,v$ value 1 and every other original vertex value 0.
+On every length-$\ell$ path with endpoint values $x,y\in\{0,1\}$,
+give its internal vertex $j$ the value
+\begin{equation}\label{eq:pathtrial}
+ z_j=\frac{x\sin((\ell-j)\theta_\ell)
+               +y\sin(j\theta_\ell)}{\sin(\ell\theta_\ell)}.
+\end{equation}
+These values satisfy
+$2z_j-z_{j-1}-z_{j+1}=b_\ell z_j$ at every internal vertex.
+At each of $u,v$, there is one original path type with endpoint
+values $(1,1)$ and two types with endpoint values $(1,0)$.
+The total outward flux, divided by $M$, is
+\[
+ 3-\frac{3\sin((\ell-1)\theta_\ell)+\sin\theta_\ell}
+             {\sin(\ell\theta_\ell)}=0,
+\]
+by \eqref{eq:pathroot} and the sine subtraction formula.
+All other original vertices have value zero. If $D$ is the sum of
+squared internal values across one copy of each original path type,
+then the full trial vector has squared norm $MD+2$ and energy
+exactly $b_\ell MD$.
+
+All trial values lie in $[0,2]$. To see this, note that
+$\ell\theta_\ell/2<\ell\pi/(4\ell-2)\leq\pi/3$ and
+$\ell\theta_\ell<\pi$. The $(1,1)$ path values equal
+\[
+ \frac{\cos((j-\ell/2)\theta_\ell)}
+      {\cos(\ell\theta_\ell/2)}\in[1,2],
+\]
+and the nonnegative $(1,0)$ and $(0,1)$ values are at most their
+sum. In particular the $uv$ path alone gives $D\geq h$.
+
+Now set the value of every internal vertex in $T$ to zero. The
+original values already vanish on $T\cap V(H)$. Each altered
+internal vertex has degree 2, so at most $2k$ edges change energy.
+A changed edge has new energy at most 4, and the squared norm
+falls by at most $4k$. The modified vector is nonzero because
+$M h\geq8k$ and it is an admissible Dirichlet test vector. Its
+Rayleigh quotient is at most
+\[
+ \frac{b_\ell MD+8k}{MD+2-4k}
+ \leq b_\ell+\frac{(8+4b_\ell)k}{MD-4k}
+ \leq b_\ell+\frac{24k}{Mh},
+\]
+using $b_\ell<1$ and $MD\geq Mh\geq8k$.
+This handles internal anchors without restricting the candidate set.
+
+For completeness, the left side minus the right side of
+\eqref{eq:pathroot} equals 2 at zero and is negative at
+$\pi/(2\ell-1)$. Its derivative is negative in between, since
+$\sin((\ell-\tfrac12)\theta)\geq\sin(\theta/2)>0$ there and
+$3(\ell-\tfrac12)>1/2$. This proves existence, uniqueness, and
+$0<b_\ell<a_\ell\leq1$. Put
+$t_\ell=(\ell-\tfrac12)\theta_\ell\in(0,\pi/2)$.
+Equation~\eqref{eq:pathroot} becomes
+$3\cos t_\ell=\cos(t_\ell/(2\ell-1))$.
+Its right side is strictly less than 1 and converges uniformly to 1,
+so $t_\ell>\arccos(1/3)$ and
+$t_\ell\to\arccos(1/3)$. Concavity of sine on $[0,\pi/2]$ gives
+\[
+ \frac{b_\ell}{a_\ell}
+ =\left(\frac{\sin(t_\ell/(2\ell-1))}
+ {\sin(\pi/(2(2\ell-1)))}\right)^2
+ \geq\left(\frac{2t_\ell}{\pi}\right)^2>c_*.
+\]
+Using $2-2\cos x=4\sin^2(x/2)$
+and $\sin x/x\to1$ proves \eqref{eq:pathlimit}.
+\end{proof}
+\noindent Numerical check: \texttt{scripts/verify\_t10\_paths.py}.
+
+\begin{theorem}[Amplified exact-budget spectral hardness]
+\label{thm:amplifiedhardness}
+For every fixed $\gamma>c_*$, where $c_*$ is defined in
+\eqref{eq:pathlimit}, a polynomial-time $\gamma$-approximation
+for exact-budget grounded-$\lambda_{\min}$ maximization on connected
+simple unweighted graphs would imply $\mathrm P=\mathrm{NP}$.
+The reduction preserves the source budget $k$ exactly and permits
+all graph vertices as candidates. In particular this excludes a
+same-budget spectral factor $1-1/e$. It also extends to a prescribed
+singleton seed and every fixed rational $\sigma\geq0$ on connected
+positively weighted graphs. A randomized approximation with success
+probability at least $2/3$ would imply $\mathrm{NP}=\mathrm{RP}$.
+\end{theorem}
+\begin{proof}
+It suffices to consider $\gamma\leq1$. Choose a constant integer
+$\ell\geq2$ with $b_\ell/a_\ell<\gamma$, possible by
+\eqref{eq:pathlimit}, and put $\Delta=\gamma a_\ell-b_\ell>0$.
+Fix an integer constant $C>\max\{8,32/\Delta\}$.
+Given a connected cubic vertex-cover instance $(H,k)$,
+$1\leq k<|V(H)|$, construct $G_{Ck,\ell}$ and keep budget $k$.
+It has $n+Ckm(\ell-1)$ vertices and $Ckm\ell$ edges, so its size
+is polynomial. Every vertex, including every path-interior vertex,
+is eligible for grounding. Define the constants
+\[
+ \alpha=\frac{a_\ell}{1+4/(3C)},\qquad
+ \beta=b_\ell+\frac{24}{C(\ell-1)}.
+\]
+Because $a_\ell\leq1$,
+\[
+ \gamma\alpha-\beta
+ \geq\Delta-\frac{4\gamma a_\ell/3+24/(\ell-1)}C
+ >\Delta-\frac{32}C>0.
+\]
+If $H$ has a cover of size at most $k$, enlarge it to size $k$
+and ground those original vertices. Equation~\eqref{eq:pathyes}
+gives value at least $\alpha$. If an arbitrary returned size-$k$
+set $T$ has original part $T\cap V(H)$ that is not a cover,
+\eqref{eq:pathno} gives value at most $\beta$.
+Thus a $\gamma$-approximation on a YES instance must return an
+original part that is a cover, since its value is at least
+$\gamma\alpha>\beta$. Check that original part combinatorially.
+On a NO instance no original part of size at most $k$ can pass.
+This decides cubic vertex cover and proves the claimed hardness.
+The constants depend only on the fixed target factor; strict
+inequalities allow fixed rational upper/lower enclosures when
+choosing them, independently of the input instance.
+
+The special factor $1-1/e$ has an exact rational certificate.
+For $\ell=4$, the ND path matrix and the sine recurrence give
+$a_4$ as the smallest positive zero of $F$, and $3F(b_4)=1$, where
+$F(x)=1-6x+5x^2-x^3$ is strictly decreasing on $[0,1/5]$.
+Direct rational evaluations give
+$F(99/500)>0$, $F(1/5)<0$, and $3F(309/2500)<1$.
+Consequently
+\[
+ \frac{b_4}{a_4}<\frac{309/2500}{99/500}
+ =\frac{103}{165}<\frac58<1-\frac1e.
+\]
+The last inequality follows from
+$e>1+1+1/2+1/6+1/24=65/24>8/3$.
+
+For a fixed seed and shift, multiply every path-edge weight by
+a constant positive integer $W$, add a new mandatory seed $z$,
+and join $z$ to every other vertex by a unit-weight edge.
+After grounding $z$, any additional set $T$ has matrix
+$W L(G_{Ck,\ell})_{-T}+(1+\sigma)I$.
+Choose $W$ so that
+\[
+ W(\gamma\alpha-\beta)>(1-\gamma)(1+\sigma).
+\]
+The YES lower bound $W\alpha+1+\sigma$ and the NO upper bound
+$W\beta+1+\sigma$ are then separated by factor $\gamma$.
+The graph and its rational encoding remain polynomial, and the
+budget still counts exactly $k$ additions to the mandatory seed.
+The same combinatorial output check proves the reduction.
+For randomized algorithms this check has no false positives and
+succeeds with probability at least $2/3$ on YES instances, giving
+the $\mathrm{NP}=\mathrm{RP}$ consequence as in
+Theorem~\ref{thm:spectralhardness}.
+\end{proof}
+\noindent Numerical check: \texttt{scripts/verify\_t10\_amplified\_hardness.py}.
+
+\subsection{Structural constraints on further amplification}
+\begin{proposition}[The cubic half-budget threshold is sharp]
+\label{prop:cubicalgorithm}
+On connected unweighted cubic graphs and budgets $n/2\leq k<n$,
+a polynomial-time $2/3$-approximation exists. Together with
+Theorem~\ref{thm:spectralhardness}, this is the sharp approximation
+threshold in this graph/budget regime unless $\mathrm P=\mathrm{NP}$.
+\end{proposition}
+\begin{proof}
+Start with any two-coloring. Whenever a vertex has at least two
+neighbors of its own color, flip it. Each flip increases the number
+of cut edges by at least one; at most $m$ flips occur. The final
+color classes each induce maximum degree at most one. One class
+has at least $n/2$ vertices. Keep any $n-k$ vertices of that class
+and ground all others. The remaining adjacency matrix is a
+matching plus isolated vertices, so its largest eigenvalue is at
+most one and the grounded Laplacian has smallest eigenvalue at
+least two. Every feasible smallest eigenvalue is at most three.
+Scanning for a flippable vertex after each flip is already a
+polynomial-time implementation.
+
+A cubic vertex cover has size at least $m/3=n/2$. Hence the
+hardness reduction may restrict source instances to $k\geq n/2$:
+instances with $k<n/2$ are immediately NO and can be replaced by
+the fixed NO instance $(K_4,2)$. Theorem~\ref{thm:spectralhardness}
+therefore excludes every larger factor in the stated regime.
+\end{proof}
+\noindent Numerical check: \texttt{scripts/verify\_t10\_cubic\_threshold.py}.
+
+\begin{proposition}[Restrictions on direct matrix transformations]
+\label{prop:amplificationtransforms}
+The following statements hold.
+\begin{enumerate}
+\item If SPD SDDM matrices $A,B$ each have a strictly negative
+ off-diagonal entry, $A\otimes B$ has a positive off-diagonal entry.
+ Every Schur complement of an SPD SDDM matrix is SDDM.
+ The Kronecker sum $A\otimes I+I\otimes B$ is SDDM and has
+ smallest eigenvalue $\lambda_{\min}(A)+\lambda_{\min}(B)$.
+\item Let $f$ be continuous on $(0,\infty)$, with $f(A)$ SDDM
+ for every SPD SDDM $A$. If
+ $f(A)[U,U]=f(A[U,U])$ for every principal index set $U$, then
+ $f(x)=cx+d$ with $c,d\geq0$. For $0<a<b$ and $f(b)>0$,
+ $f(a)/f(b)\geq a/b$.
+\item The map $\mathcal H(A)=((A^{-1})^{\circ2})^{-1}$ fails
+ to commute with grounding even on the explicit SDDM pair
+ \[
+ A=\begin{pmatrix}2&-1&0\\-1&2&-1\\0&-1&2\end{pmatrix},\qquad
+ \mathcal H(A)=\begin{pmatrix}2&-1/2&0\\-1/2&5/4&-1/2\\0&-1/2&2\end{pmatrix}.
+ \]
+ For $U=\{1,3\}$, $\mathcal H(A)[U,U]=2I$ whereas
+ $\mathcal H(A[U,U])=4I$.
+\end{enumerate}
+\end{proposition}
+\begin{proof}
+If $A_{ij}<0$ and $B_{uv}<0$ with $i\ne j,u\ne v$, the
+$((i,u),(j,v))$ entry of their tensor product is positive.
+For the Schur assertion write an SPD SDDM matrix as
+$\left(\begin{smallmatrix}P&Q\\Q^\top&D\end{smallmatrix}\right)$.
+Its inverse block $D^{-1}$ is entrywise nonnegative: write
+$D=sI-N$ with $N\geq0$ and $s>\rho(N)$ and use the convergent
+Neumann series. Thus $P-QD^{-1}Q^\top$ has nonpositive
+off-diagonals. If $r_1=P\ind+Q\ind\geq0$ and
+$r_2=Q^\top\ind+D\ind\geq0$, its row sums are
+$r_1-QD^{-1}r_2\geq0$. Positive definiteness follows by minimizing
+the original quadratic form over the eliminated variables.
+For example, $A^2$ for the displayed three-by-three $A$ also has
+positive $(1,3)$ entry 1. These sign tests concern exact matrices
+and exact static Schur complements. The Kronecker sum has
+nonpositive off-diagonals and nonnegative row sums. Tensor products
+of the two eigenvector bases diagonalize it with eigenvalues
+$\lambda_i(A)+\lambda_j(B)$, proving its asserted smallest value.
+
+For the second assertion take
+$A=\left(\begin{smallmatrix}t&-u\\-u&t\end{smallmatrix}\right)$,
+$t>u\geq0$, and restrict to a single index. Its eigenvalues are
+$t-u,t+u$, so the commutation hypothesis gives
+$f(t)=(f(t-u)+f(t+u))/2$. Every pair of positive numbers has this
+form. Repeated midpoint subdivision gives affine interpolation
+at dyadic rational points of every interval; continuity extends
+it to all points, proving that $f(x)=cx+d$ with common constants.
+The off-diagonal sign of $f(A)=cA+dI$ forces $c\geq0$; its
+nonnegative row sums for arbitrarily small positive scalar $A$
+force $d\geq0$. Finally
+$b(ca+d)-a(cb+d)=d(b-a)\geq0$ gives the ratio inequality.
+
+For the third assertion direct multiplication gives
+\[
+ A^{-1}=\frac14\begin{pmatrix}3&2&1\\2&4&2\\1&2&3\end{pmatrix}.
+\]
+Squaring entries and multiplying by the displayed $\mathcal H(A)$
+gives the identity matrix. Both displayed matrices have
+nonpositive off-diagonals and nonnegative row sums, and are
+positive definite. The two principal-transform values now follow
+by restricting to indices 1 and 3 and inverting scalar diagonals.
+\end{proof}
+\noindent Numerical check: \texttt{scripts/verify\_t10\_transforms.py}.
+
+\begin{proposition}[Uniform pendant ratio bound]
+\label{prop:pendantamplification}
+Attach the same connected weighted rooted graph $H$ to every
+vertex of a base graph, identifying its root with that vertex.
+For any nonempty original grounding set $S$ leaving an original
+vertex, keep every auxiliary vertex ungrounded. If the original
+smallest grounded eigenvalue is $\mu$, the decorated graph's
+smallest grounded eigenvalue is $g(\mu)$, where $g$ is increasing
+in the non-strict sense, concave, positive on $(0,\infty)$, and
+$g(0)=0$. In particular $g(a)/g(b)\geq a/b$ for $0<a<b$.
+The selected set and its cardinality are unchanged in this identity.
+\end{proposition}
+\begin{proof}
+Write the Laplacian of the attached graph, with root first, as
+\[
+ L_H=\begin{pmatrix}d&-b^\top\\-b&D\end{pmatrix},\quad
+ b\geq0,\quad D\ind=b,\quad D\succ0.
+\]
+If there are no auxiliary vertices the assertion is $g(\mu)=\mu$.
+Otherwise define
+\[
+ g(\mu)=\lambda_{\min}
+ \begin{pmatrix}d+\mu&-b^\top\\-b&D\end{pmatrix}.
+\]
+The Rayleigh minimum of affine nondecreasing functions of $\mu$
+is concave and nondecreasing. Connectivity gives $g(0)=0$ and
+$g(\mu)>0$ for $\mu>0$ by the edge-energy form plus a positive
+root penalty.
+
+Diagonalize the base grounded Laplacian and apply the same
+orthogonal change of coordinates to its attached copies. The
+part belonging to ungrounded original roots splits into the
+above blocks, one per base eigenvalue. The decorations of
+selected roots give additional isolated $D$ blocks.
+Let $\lambda_D=\lambda_{\min}(D)$. A unit minimizing eigenvector
+$w$ can be chosen nonnegative, because taking entrywise absolute
+values never increases the quadratic form of an SDDM matrix.
+Then $b^\top w=(D\ind)^\top w=\lambda_D\ind^\top w>0$.
+Testing the block defining $g(\mu)$ on $(t,w)$ for small $t>0$
+gives a Rayleigh quotient strictly below $\lambda_D$, since
+its numerator is $\lambda_D-2t b^\top w+(d+\mu)t^2$.
+Thus the isolated $D$ blocks are above $g(\mu)$, and monotonicity
+shows that the full smallest eigenvalue is $g$ of the smallest
+base eigenvalue. Finally concavity at
+$a=(a/b)b+(1-a/b)0$ gives $g(a)\geq(a/b)g(b)$.
+\end{proof}
+\noindent Numerical check: \texttt{scripts/verify\_t10\_pendant.py}.
+
+\paragraph{Consequence for the T9 bicriteria guarantee.}
+For $0<\eta<c_*^{-1}-1$, the spectral factor $1/(1+\eta)$ is
+strictly larger than $c_*$. Theorem~\ref{thm:amplifiedhardness} rules out a
+polynomial-time same-budget guarantee with that factor under the
+stated complexity assumptions. T9's augmented budget provides a
+resource-relaxed route to precisely such high-accuracy factors,
+subject to its feasibility condition. The numerical pilot in
+\texttt{notes/findings.md}, item 6, motivates comparing finite
+powers on particular graphs; the hardness statement concerns
+worst-case instances and the exact prescribed budget.
+
+\section{Response to the Zhou comparison: finite removal and oracle precision}
+
+\begin{proposition}[A finite-removal stress case]\label{prop:zhoustress}
+Let $0<t<1/4$. On vertices $\{z,a,b,c\}$ put edges $za,ab$
+of weight $t$ and $zb,bc,cz$ of weight one. Ground the prescribed
+seed $z$ and choose one further vertex. Apply the weighted version
+of the score in Zhou et al.\ \cite{zhou2023}, Eq.~(4),
+$h_v=2u_v\sum_{w\notin S}w_{vw}u_w$, using the exact smallest
+eigenvector. The score uniquely selects $b$, and its achieved
+smallest eigenvalue divided by the optimum is at most $2t$.
+For every real $p\geq1$, exact minimization of $\tr X^{-p}$
+over the three one-vertex choices uniquely selects the spectral
+optimum $a$.
+\end{proposition}
+\begin{proof}
+In the order $a,b,c$, the current grounded matrix is
+\[
+ X=\begin{pmatrix}2t&-t&0\\-t&2+t&-1\\0&-1&2\end{pmatrix}.
+\]
+It is positive definite by grounded connectivity. Its off-diagonal
+graph is connected, so its smallest eigenvector is strictly positive:
+apply Perron--Frobenius to $dI-X$ with $d>\lambda_{\max}(X)$.
+The scores obey
+\[
+ h_a=2tu_au_b>0,\quad h_c=2u_bu_c>0,\quad h_b=h_a+h_c.
+\]
+Consequently $b$ is the unique maximizer, independently of how
+accurately the positive eigenvector is scaled. After selecting $b$
+the matrix is $\diag(2t,2)$ and its smallest eigenvalue is $2t$.
+After selecting $a$, the matrix is
+\[
+ \begin{pmatrix}2+t&-1\\-1&2\end{pmatrix}
+ =\begin{pmatrix}2&-1\\-1&2\end{pmatrix}
+   +\diag(t,0)\succeq I,
+\]
+so its smallest eigenvalue is at least one. After selecting $c$,
+the Rayleigh quotient at the coordinate $a$ is $2t<1$.
+This proves uniqueness of the spectral optimum and the ratio bound.
+The inverse-power trace after selecting $a$ is at most two; after
+either alternative it is at least $(2t)^{-p}>2$ for every $p\geq1$.
+The inverse-power choice is therefore also uniquely $a$.
+\end{proof}
+\noindent Numerical check: \texttt{scripts/verify\_zhou\_response.py}.
+
+\begin{proposition}[Tighter endpoint-moment upper bounds]
+\label{prop:tightendpoint}
+Use the notation of Proposition~\ref{prop:integerpositive} and let
+$p\geq2$ be an integer. Put $v_2=a_2-a_1^2\geq0$. Then
+\begin{align*}
+ q_p&\leq U_2:=p a_p-(p-1)a_1^p-p(p-2)v_2a_1^{p-2}\\
+    &\leq U_1:=p a_p-(p-1)a_1^p\leq p a_p.
+\end{align*}
+Both upper bounds are at least $a_p$. For $p=2$, $U_1=U_2=q_2$;
+for $p=3$, $U_2=q_3$. If $R$ has rank one and hard grounding
+removes its nonzero mode, both bounds equal $q_p=a_p$.
+
+For certified intervals $a_j\in[\ell_j,u_j]$, with nonnegative
+endpoints, set $v_- =\max\{0,\ell_2-u_1^2\}$. A certified
+version is
+\[
+ q_p\leq p u_p-(p-1)\ell_1^p
+                   -p(p-2)v_-\ell_1^{p-2}.
+\]
+At $p=2$ the last term is defined as zero. For $p=1$ use $q_1=a_1$.
+\end{proposition}
+\begin{proof}
+Define the nonnegative word sums
+\[
+ W_\ell=\sum_{\substack{j_1+\cdots+j_\ell=p\\j_i\geq1}}
+                d_{j_1}\cdots d_{j_\ell}.
+\]
+The proof of Proposition~\ref{prop:integerpositive} gives
+$a_p=\sum_{\ell=1}^p W_\ell$ and
+$q_p=\sum_{\ell=1}^p(p/\ell)W_\ell$. Therefore
+\[
+ p a_p-q_p=\sum_{\ell=2}^p p(1-1/\ell)W_\ell.
+\]
+Keep just the $\ell=p$ term for $U_1$. Since $d_1=a_1$,
+$W_p=a_1^p$. For $p\geq3$ also keep the $\ell=p-1$ term.
+Here $d_2=cx^\top(R-cxx^\top)x=a_2-a_1^2=v_2$ and
+$W_{p-1}=(p-1)v_2a_1^{p-2}$, yielding $U_2$.
+All discarded terms are nonnegative. For $p=2,3$ all positive
+correction terms have been retained, giving the exact special cases.
+The lower bound $q_p\geq a_p$ from the same proposition proves
+$U_2,U_1\geq a_p$. In the rank-one hard case $K=0$, so only
+$d_1$ is nonzero and only $W_p$ survives. Finally
+$v_2\geq v_-$ and $a_1\geq\ell_1$, which proves the interval
+bound by bounding each subtracted nonnegative product from below
+and $a_p$ from above.
+\end{proof}
+\noindent Numerical check: \texttt{scripts/verify\_marginal\_upper.py}.
+
+\begin{proposition}[Cache and deflation precision conditions]
+\label{prop:responsescope}
+If a cached moment $\widehat r^{(0)}$ is advanced by exact,
+cache-independent decrements $D_i=r^{(i)}-r^{(i+1)}$, its signed
+absolute error is constant. With decrements $\widehat D_i$, its
+error after $h$ updates is
+\[
+ e^{(h)}=e^{(0)}+\sum_{i=0}^{h-1}(D_i-\widehat D_i).
+\]
+Even with exact decrements, its relative error can grow without bound
+on connected grounded graphs.
+
+For a positive definite current matrix $X$, let
+$0<\lambda_1\leq\cdots\leq\lambda_d$ and $\phi_i$ be an orthonormal
+eigenbasis. Fix $r<d$ and define
+\[
+ H_j(u)=\sum_{i\leq r}\lambda_i^{-j}\phi_i(u)^2,\quad
+ T_j(u)=\sum_{i>r}\lambda_i^{-j}\phi_i(u)^2,\quad
+ w_r(u)=\sum_{i\leq r}\phi_i(u)^2.
+\]
+If $H_j$ is exact and $|\widehat T_j-T_j|\leq\zeta T_j$, then
+\[
+ \frac{|H_j+\widehat T_j-r_j|}{r_j}
+ \leq\zeta\frac{T_j}{r_j}.
+\]
+For $w_r(u)>0$, the tail fraction is at most
+\[
+ \min\left\{1,\frac{1-w_r(u)}{w_r(u)}
+                  \left(\frac{\lambda_r}{\lambda_{r+1}}\right)^j\right\}.
+\]
+If $\phi_1(u)\ne0$, $w_r(u),\lambda_r$ in the denominator bound
+can instead be replaced by $\phi_1(u)^2,\lambda_1$, retaining
+$1-w_r(u)$ in the numerator. A bound using only the latter
+spectral ratio and $j$ cannot force the tail fraction to zero
+uniformly over all vertices and connected grounded matrices.
+\end{proposition}
+\begin{proof}
+Subtract the exact update from the computed update and telescope
+to obtain the error identity. Consider the graph with seed $z$,
+edge $zu$ of weight $t$ and edge $uv$ of weight one. Before
+grounding $u$, $r_1(v)=(1+t)/t$, and afterwards $r_1(v)=1$.
+An initial signed relative error $-\zeta$ becomes final signed
+relative error $-\zeta(1+t)/t$ under the exact decrement $1/t$.
+It is unbounded as $t\downarrow0$.
+
+The deflated error identity follows by subtracting $H_j+T_j$.
+The inequalities $T_j\leq(1-w_r)\lambda_{r+1}^{-j}$ and
+$r_j\geq H_j\geq w_r\lambda_r^{-j}$ give the first bound.
+Using $r_j\geq\phi_1(u)^2\lambda_1^{-j}$ gives the second.
+To check the uniform obstruction even with a connected follower
+graph, fix any positive integer $j$, let $0<t<1$, set $b=t^{j+2}$,
+and consider
+\[
+ X_t=\begin{pmatrix}t+b&-b\\-b&1+b\end{pmatrix}.
+\]
+This is the grounded matrix of seed edges of weights $t,1$ and
+one follower edge of weight $b$. As $t\downarrow0$, its eigenvalues
+are $t(1+o(1))$ and $1+o(1)$. The second coordinate of its normalized
+smallest eigenvector is $O(b)$, by its second eigenvector equation.
+At this coordinate, for $r=1$, $H_j=O(b^2t^{-j})=O(t^{j+4})$
+while $T_j=1+o(1)$. Thus $T_j/r_j\to1$ even though
+$(\lambda_1/\lambda_2)^j\to0$.
+\end{proof}
+\noindent Numerical check: \texttt{scripts/verify\_response\_precision.py}.
+
+\section{T11: preconditioning, cache retention, and scores}
+
+\subsection{A fixed seed preconditioner}
+Write $W=V\setminus S_0$, $N=|W|$, $A_0=X_{S_0}\succ0$,
+$T=S\setminus S_0$, $t=|T|$, and $U=W\setminus T$.
+All inverses in this subsection act on their active coordinates.
+An inverse preconditioner $B_0\succ0$ for $A_0$ is applied to a
+vector on $U$ by zero extension to $W$, application of $B_0$, and
+restriction back to $U$. Its active matrix is $B_U=B_0[U,U]$.
+
+\begin{theorem}[Masked seed preconditioning]\label{thm:seedpcg}
+Suppose $aA_0^{-1}\preceq B_0\preceq bA_0^{-1}$ for $0<a\leq b$.
+Let $A=A_0[U,U]$ and $d=|U|>0$. Every eigenvalue of
+$H=A^{1/2}B_UA^{1/2}$ is at least $a$, and at most $t$ of its
+eigenvalues exceed $b$. Let $q\leq\min\{t,d\}$ count those
+exceeding $b$, and set $\chi=b/a$. In exact arithmetic PCG obeys,
+for $h\geq q$ and $\chi>1$,
+\[
+ \frac{\|e_h\|_A}{\|e_0\|_A}
+ \leq 2\left(\frac{\sqrt\chi-1}{\sqrt\chi+1}\right)^{h-q}.
+\]
+It therefore reaches relative energy error $\xi$ in at most
+\[
+ \min\left\{d,\ t+
+ \left\lceil\frac{\log(2/\xi)}{
+ \log((\sqrt\chi+1)/(\sqrt\chi-1))}\right\rceil\right\}
+\]
+iterations. For $a=b$, termination occurs within $\min\{d,t+1\}$
+iterations. These bounds hold simultaneously for every $T$ on the
+single seed spectral-approximation event.
+
+The identity-padded matrix $\overline A=A\oplus I_T$ differs from
+$A_0$ by rank at most $2t$.
+\end{theorem}
+\begin{proof}
+Order $U$ before $T$ and write
+$A_0=\left(\begin{smallmatrix}A&C\\C^\top&D\end{smallmatrix}\right)$.
+The block inverse formula gives
+\[
+ (A_0^{-1})[U,U]
+ =A^{-1}+A^{-1}C(D-C^\top A^{-1}C)^{-1}C^\top A^{-1}.
+\]
+The Schur complement is positive definite. Congruence by $A^{1/2}$
+thus yields $K=I+ZZ^\top$ with $\operatorname{rank}Z\leq t$.
+Compression preserves the assumed Loewner inequalities, so
+$aK\preceq H\preceq bK$. In particular $H\succeq aI$.
+On the subspace $\ker Z^\top$, of codimension at most $t$,
+the Rayleigh quotient of $H$ is at most $b$. The min--max
+principle proves the outlier count. The preconditioned system
+$B_U^{1/2}AB_U^{1/2}$ has the same spectrum as $H$.
+
+For completeness, CG minimizes the energy norm of the error over
+its affine Krylov space: its conjugate search directions are
+pairwise orthogonal in the system inner product and exact line
+minimization makes the final error orthogonal to their span.
+Apply this property to $M=B_U^{1/2}AB_U^{1/2}$ and the transformed
+error $\widetilde e=B_U^{-1/2}e$, for which
+$\|\widetilde e\|_M=\|e\|_A$. The Krylov error candidates are
+$P(M)\widetilde e_0$ for polynomials of degree at most $h$ with
+$P(0)=1$. Diagonalizing $M$ bounds their $M$-norm by
+$\max_{\lambda\in\spec(M)}|P(\lambda)|\|e_0\|_A$.
+Since $M$ and $H$ have the same spectrum, this is the required
+polynomial bound in terms of $H$.
+
+Let $\mu_1,\ldots,\mu_q>b$ be the outliers, with multiplicity.
+Multiply the degree-$(h-q)$ Chebyshev residual polynomial on
+$[a,b]$, normalized to equal one at zero, by
+$\prod_{i=1}^q(1-z/\mu_i)$. The product vanishes at every outlier
+and has absolute value at most one on $[a,b]$. The Chebyshev
+factor is bounded by
+$2((\sqrt\chi-1)/(\sqrt\chi+1))^{h-q}$ there, proving the result.
+For $a=b$ the polynomial $(1-z/a)\prod_i(1-z/\mu_i)$ annihilates
+the spectrum. The usual degree-$d$ annihilating polynomial gives
+the dimension cap. Finally
+\[
+ \overline A-A_0=
+ \begin{pmatrix}0&-C\\-C^\top&I-D\end{pmatrix}
+ =\begin{pmatrix}0&-C\\0&I-D\end{pmatrix}
+  +\begin{pmatrix}0&0\\-C^\top&0\end{pmatrix},
+\]
+a sum of two matrices of rank at most $t$. The stronger one-sided
+outlier conclusion follows from the block inverse calculation,
+rather than from this rank count alone. Every argument is
+deterministic for every principal subset once $B_0$ satisfies its
+initial spectral inequalities.
+\end{proof}
+\noindent Numerical check: \texttt{scripts/verify\_t11\_pcg.py}.
+
+\paragraph{Approximate Cholesky instantiation.}
+Contract the seed to a vertex $g$, and represent any diagonal
+killing by edges to $g$. Let $\mathcal L$ be the resulting connected
+Laplacian, whose principal matrix off $g$ is $A_0$. The
+SparseCholesky theorem of Kyng--Sachdeva~\cite{kyng2016},
+Theorem 3.1, supplies $\widetilde{\mathcal L}$ with
+$(1-\epsilon_c)\mathcal L\preceq\widetilde{\mathcal L}
+\preceq(1+\epsilon_c)\mathcal L$ except with probability $\delta_c$.
+Its expected construction work and factor storage are
+$O(\epsilon_c^{-2}(m_E+N)\log^2((N+1)/\delta_c)\log(N+1))$;
+Appendix B gives the high-probability work variant with the stated
+sampling rule. The sparse inverse application has work $O(F+N)$,
+where $F$ is the stored factor size.
+
+Define $Q$ to have rows $e_u^\top-e_g^\top$, $u\in W$.
+Then $B_0=Q\widetilde{\mathcal L}^{+}Q^\top$ equals the inverse
+of $\widetilde{\mathcal L}[W,W]$: solving with balanced source
+$(r,-\ind^\top r)$ and subtracting the ground potential solves
+the grounded system. Restriction of the Laplacian spectral
+inequalities and inversion give
+$a=(1+\epsilon_c)^{-1}$, $b=(1-\epsilon_c)^{-1}$, hence
+$\chi=(1+\epsilon_c)/(1-\epsilon_c)$. At $\epsilon_c=1/2$,
+$\chi=3$ and the iteration bound is $t+O(\log(1/\xi))$.
+This instantiation uses the imported factorization theorem;
+Theorem~\ref{thm:seedpcg} proves its simultaneous reuse under
+grounding. The numerical check also verifies the $Q$ identity.
+
+\begin{theorem}[Fixed-factor incremental work]\label{thm:inccost}
+Let $k$ denote additional anchors, $J=p+1$, $L=\lceil J/2\rceil$,
+and let $d_{\rm JL}$ be the initial sketch dimension. Let $r_t$
+be the number of candidate refreshes in round $t=0,\ldots,k-1$,
+$R=\sum_t r_t$, and let $s_t\leq L$ selected-column solves be
+reused for the update in rounds $t<k-1$. Suppose every solve uses
+the fixed preconditioner and reaches relative energy tolerance
+at least as accurate as $\xi_*$. Set
+$\mathcal H_t=O(\min\{N-t,t+1+\sqrt\chi\log(2/\xi_*)\})$.
+An implementation with independent batched PCG columns has work
+\begin{align*}
+ T_{\rm build}+O\bigg(& (m_E+N+F)\left[
+ Jd_{\rm JL}\mathcal H_0+
+ \sum_{t=0}^{k-1}Lr_t\mathcal H_t+
+ \sum_{t=0}^{k-2}(J-s_t)\mathcal H_t\right]\\
+ &+kNJ^2+(R+k)\log(N+1)\bigg).
+\end{align*}
+For constant $\chi$ and $F,T_{\rm build}=\widetilde O(m_E+N)$,
+putting $\ell=1+\log(2/\xi_*)$ gives the simpler bound
+\[
+ \widetilde O\left((m_E+N)
+ [1+p d_{\rm JL}\ell+p(R+k)(k+\ell)]
+       +kNp^2+(R+k)\log(N+1)\right).
+\]
+If each candidate is refreshed at most once, $R\leq N$.
+For a hybrid implementation using Jacobi on some solves, replace
+each corresponding $\mathcal H_t$ by
+$O(\min\{N-t,\sqrt{\kappa_{J,t}}\log(2/\xi_*)\})$, and its
+per-iteration work by $O(m_E+N)$, where $\kappa_{J,t}$ is the
+Jacobi-preconditioned condition number.
+\end{theorem}
+\begin{proof}
+The odd and even T6 chains together use $Jd_{\rm JL}$ initial
+right-hand-side solves. At a refreshed candidate, the vectors
+$y_i=A^{-i}e_v$, $i\leq L$, give
+$r_{2i}=\|y_i\|^2$ and $r_{2i-1}=y_{i-1}^\top y_i$,
+so each refresh needs $L$ solves. The full selected chain through
+$A^{-J}e_v$ requires $J$ solves, of which $s_t$ can be reused.
+The final round requires no following cache update. Each PCG
+iteration has one sparse product, one factor application, and
+linear vector work. Apply Theorem~\ref{thm:seedpcg} to each
+right-hand side. Finite batches execute independent CG recurrences;
+bounding every column by $\mathcal H_t$ also bounds their padded
+batch work. Generating and accumulating sketches, moments, and
+chain inner products is absorbed in these solve terms.
+The scalar moment recurrences and all-node cache passes cost
+$O(kNJ^2)$. Rebuilding each heap costs $O(N)$ per round, and
+refresh pops plus selections cost $O((R+k)\log(N+1))$.
+Substitute the largest $t<k$ and $J,L=O(p)$ for the simplified bound.
+The Jacobi expression is the same Chebyshev proof with all
+eigenvalues in its full spectral interval and no deflated outliers.
+The distinct-refresh cap follows by counting eligible vertices.
+\end{proof}
+\noindent Numerical check: \texttt{scripts/verify\_t11\_complexity.py}.
+
+\paragraph{Tolerance and factor parameters.}
+For $a_*I\preceq A\preceq B_*I$, a recomputed relative residual
+$\tau$ implies relative energy error at most
+$\sqrt{B_*/a_*}\,\tau$: apply the two extremal norm inequalities
+to $A^{-1/2}r$ and $A^{-1/2}b$. Conversely the residual ratio is
+at most $\sqrt{B_*/a_*}$ times the relative energy error for a zero
+start. Thus a residual-based stopping implementation can use
+$\tau=\xi_*/\sqrt{B_*/a_*}$ and the work bound with energy target
+$\xi_* /(B_*/a_*)$, adding only a logarithmic condition factor.
+The simultaneous seed spectral event covers all later right-hand
+sides and sets. With the T6 initial moment budgets, fixed $p$
+has logarithmic solve-precision cost. The mixed setting used in
+the night update applies the factor for batch width at least four;
+the hybrid formula accounts separately for its single-column solves.
+
+\subsection{Exact updates and retained moments}
+
+\begin{proposition}[All-order independent decrements]\label{prop:incall}
+Let $R=X_S^{-1}$ be zero padded on already selected coordinates,
+let $v$ be active, $x=Re_v$, $c=1/R_{vv}$, and
+$K=R-cxx^\top$. For $i\geq0$ define $a_i=R^ix$,
+$s_i=x^\top R^ix$, and, for each active $u$,
+\[
+ \gamma_0(u)=a_0(u),\qquad
+ \gamma_t(u)=a_t(u)-c\sum_{i=0}^{t-1}s_i\gamma_{t-1-i}(u).
+\]
+Then $\gamma_t(u)=e_u^\top K^tx\geq0$ and the moment decrement is
+\[
+ D_j(u)=r_j(u,S)-r_j(u,S\cup\{v\})
+      =c\sum_{i=0}^{j-1}a_i(u)\gamma_{j-1-i}(u)\geq0.
+\]
+These decrements depend on selected columns, not on the cached
+candidate moments. After a last refresh at time $b$,
+\[
+ |\widehat r_j(u,S_t)-r_j(u,S_t)|
+ \leq E_{j,u}^{(b)}+\sum_{i=b}^{t-1}\varepsilon_{j,u}^{(i)},
+ \qquad
+ |\widehat D_j^{(i)}-D_j^{(i)}|\leq\varepsilon_{j,u}^{(i)}.
+\]
+For exact columns all $\varepsilon$ are zero. In an implementation
+whose refresh flag changes only from false to true, whose refresh
+batch contains only false-flag candidates, and whose nonseed
+selections always have true flags, a run starting with all $N$
+candidate flags false has exactly $N-R$ never-refreshed candidates
+after $R$ total refreshes. All of them remain unselected.
+\end{proposition}
+\begin{proof}
+For small $|z|$, the rank-one inverse identity gives
+\[
+ (I-zK)^{-1}x=
+ \frac{(I-zR)^{-1}x}{1+czx^\top(I-zR)^{-1}x}.
+\]
+Equating coefficients proves the recurrence for $K^tx$.
+The telescoping identity
+\[
+ R^j-K^j=\sum_{i=0}^{j-1}R^i(R-K)K^{j-1-i}
+\]
+proves the displayed decrement. Grounded inverses and their zero-padded
+versions are entrywise nonnegative, so every displayed product is
+nonnegative. Subtracting the computed update from the true update
+and telescoping proves the error envelope; refreshing restarts it
+with that refresh's error budget. Finally each refresh changes one
+distinct false flag to true, so exactly $R$ flags have changed.
+Only true flags can be selected, proving the last assertion.
+\end{proof}
+\noindent Numerical check: \texttt{scripts/verify\_t11\_incremental.py}.
+
+\paragraph{Computable decrement-error envelopes.}
+Let a selected-column chain have true-residual bounds $\rho_i$ and
+spectral lower bound $a_*>0$. With $a_{-1}=e_v$, its Euclidean
+errors satisfy $E_{-1}=0$, $E_i\leq(E_{i-1}+\rho_i)/a_*$.
+Use component intervals $\widehat a_i(u)\pm E_i$,
+and intervals for $s_i$ centered at $\widehat a_0^\top\widehat a_i$
+with radius
+$\|\widehat a_0\|E_i+\|\widehat a_i\|E_0+E_0E_i$.
+The reciprocal of a positive interval for $a_0(v)$ encloses $c$.
+Propagating these intervals through the finite $\gamma_t,D_j$
+recurrences encloses every true decrement by induction. Their
+distance from the computed decrement gives the $\varepsilon$
+above. This construction has the same $O(NJ^2)$ scalar order as
+the update. The residual inequality follows by applying $R$ to
+each chain equation; the inner-product radius follows by expansion
+and Cauchy--Schwarz. The incremental check tests both constructions.
+
+\begin{theorem}[Moment retention and killed returns]\label{thm:retention}
+For an unselected $u$ define
+$\rho_j(u,T)=r_j(u,S_0\cup T)/r_j(u,S_0)$, $j>0$.
+There is a probability law on killed return paths from $u$ such that
+\[
+ \rho_j(u,T)=1-\Pr_{u,j}(H_T\leq t).
+\]
+Its unnormalized path/time measure is
+$t^{j-1}\mathbf1\{X_t=u,t<\zeta_{S_0}\}\,dt$, with total
+mass $\Gamma(j)r_j(u,S_0)$. In particular $0<\rho_j\leq1$.
+For integer $j\geq1$, writing $\alpha_1=1-\rho_1$,
+\[
+ 1-\rho_j\leq
+ \min\left\{1,
+ \frac{\sqrt{\alpha_1\Gamma(2j-1)r_{2j-1}(u,S_0)r_1(u,S_0)}}
+      {\Gamma(j)r_j(u,S_0)}\right\}.
+\]
+The second expression is at most
+$\sqrt{\binom{2j-2}{j-1}\alpha_1\kappa_0^{j-1}}$,
+where $\kappa_0$ is the condition number of $X_{S_0}$.
+
+Let $R_0=X_{S_0}^{-1}$. For nonempty $T$,
+\[
+ \alpha_1=
+ \frac{R_0[u,T]R_0[T,T]^{-1}R_0[T,u]}{R_0[u,u]}
+ \leq\Pr_u(H_T<\zeta_{S_0}).
+\]
+For $T=\{v\}$ this is
+$\alpha_1=\Pr_u(H_v<\zeta_{S_0})\Pr_v(H_u<\zeta_{S_0})
+=R_0[u,v]^2/(R_0[u,u]R_0[v,v])$.
+In the contracted electrical network, put
+$d_u=\mathcal R(u,g)$, $d_v=\mathcal R(v,g)$, and
+$d_{uv}=\mathcal R(u,v)$. Then
+$\alpha_1=(d_u+d_v-d_{uv})^2/(4d_ud_v)$.
+
+If the initial relative error is at most $\zeta_0$, a
+never-refreshed cache satisfies
+\[
+ \frac{|\widehat r_j(u,S)-r_j(u,S)|}{r_j(u,S)}
+ \leq\frac{\zeta_0}{\rho_j(u,T)}+
+       \frac{\sum_i\varepsilon_{j,u}^{(i)}}{r_j(u,S)}.
+\]
+\end{theorem}
+\begin{proof}
+Use T1's common killed walk, additionally killed at its first hit of
+$T$. The spectral integral
+$X^{-j}=\Gamma(j)^{-1}\int_0^\infty t^{j-1}e^{-tX}\,dt$
+and the killed return identity give the stated measure and ratio.
+All integrands are nonnegative, justifying Tonelli. Its mass is
+finite since $X_{S_0}\succ0$, and the survivor diagonal is positive.
+Under the $j=1$ law, the loss at order $j$ is the weighted
+expectation of the hit indicator with weight $t^{j-1}$, divided
+by its mean. Cauchy--Schwarz bounds its numerator by
+$\sqrt{\alpha_1\E_{u,1}t^{2j-2}}$.
+Since $\E_{u,1}t^h=\Gamma(h+1)r_{h+1}/r_1$, this proves the
+bound. Spectral decomposition gives
+$r_{2j-1}\leq\lambda_{\min}^{-(j-1)}r_j$ and
+$r_1\leq\lambda_{\max}^{j-1}r_j$, proving the condition bound.
+
+The zero-padded block inverse formula after grounding $T$ gives
+\[
+ R_T=R_0-R_0[:,T]R_0[T,T]^{-1}R_0[T,:].
+\]
+For the hitting interpretation, the strong Markov property for
+the Green occupation kernel yields
+\[
+ R_0[u,u]-R_T[u,u]
+ =\sum_{v\in T}\Pr_u(X_{H_T}=v,H_T<\zeta_{S_0})R_0[v,u].
+\]
+The identity $R_0[v,u]/R_0[u,u]=\Pr_v(H_u<\zeta_{S_0})$
+follows by applying the same property at the first hit of $u$.
+It is at most one, proving the probability bound and singleton
+factorization. The voltage solution to a unit current from $u$
+to $g$ has value $R_0[u,u]$ at $u$, so $d_u=R_0[u,u]$.
+Similarly $d_{uv}=(e_u-e_v)^\top R_0(e_u-e_v)$, proving the
+resistance expression. The last inequality divides
+Proposition~\ref{prop:incall}'s absolute-error envelope by the
+current moment.
+\end{proof}
+\noindent Numerical check: \texttt{scripts/verify\_t11\_retention.py}.
+
+\paragraph{Higher-moment sensitivity.}
+In the connected three-vertex graph with seed-edge weights $t,1$
+and follower-edge weight $t$, let $T$ be the first follower and
+$u$ the second. The initial matrix is
+$\left(\begin{smallmatrix}2t&-t\\-t&1+t\end{smallmatrix}\right)$.
+Its Green matrix is
+\[
+ R_0=\frac1{t(2+t)}
+       \begin{pmatrix}1+t&t\\t&2t\end{pmatrix}.
+\]
+Thus $\rho_1=(2+t)/(2(1+t))\to1$ and
+$\Pr_u(H_T<\zeta)=t/(1+t)\to0$.
+Yet the term $R_0[u,T]^2R_0[T,T]$ in $(R_0^3)_{uu}$
+is asymptotic to $1/(8t)$, while the current third moment is
+$(1+t)^{-3}\leq1$. Hence $\rho_3\to0$. The retention check
+verifies this example as well as the weighted-return integrals.
+
+\begin{theorem}[Conditional guarantee for practical incremental keys]
+\label{thm:practicalinc}
+Fix $p\geq1$, $0<\epsilon\leq1/2$, and $k$ additional anchors.
+Suppose the following conditions hold throughout a run:
+\begin{enumerate}
+\item Every never-refreshed active moment of order $1\leq j\leq p+1$
+has retention $\rho_j\geq\gamma>0$. The initial simultaneous
+relative error is at most $\zeta_0\leq\gamma\epsilon/(128p)$.
+\item For never-refreshed entries, cumulative decrement error is
+at most $\epsilon/(128p)$ times the current moment. For refreshed
+entries, refresh error plus subsequent decrement errors is at
+most $\epsilon/(64p)$ times the current moment.
+\item Every candidate key is its current estimated marginal,
+possibly multiplied by a factor at least one. The selected
+candidate's evaluated value is at least $1-\theta$ times every
+remaining key and at least every other evaluated value, with
+$0\leq\theta\leq\epsilon/2$.
+\end{enumerate}
+Then the returned seeded gain is at least
+$(1-e^{-1}-\epsilon)\mathrm{OPT}_k$.
+If the retention and numerical conditions are enforced pathwise,
+an initial T6 event of probability $1-\delta$ yields the same
+success probability for the complete adaptive run. Sufficient
+Gaussian dimension is
+$d_{\rm JL}=O(p^2\gamma^{-2}\epsilon^{-2}
+\log(N(p+1)/\delta))$, with T6's solve budgets.
+\end{theorem}
+\begin{proof}
+Theorem~\ref{thm:retention} bounds every current moment's relative
+error by $\zeta_*\leq\epsilon/(64p)$; this also holds for the
+refreshed class by hypothesis. Theorem~\ref{thm:polymoment}
+therefore bounds every marginal estimate relatively by
+$\eta=\epsilon/4$. At acceptance, the evaluated value $b$ of the
+selected vertex satisfies
+$b\geq(1-\theta)(1-\eta)\max_u\Delta_u$:
+every other vertex is either evaluated or has a remaining key,
+and every such value/key is at least $(1-\eta)\Delta_u$.
+The selected true marginal is at least $b/(1+\eta)$, hence
+its fraction of the maximum is at least
+\[
+ (1-\theta)\frac{1-\eta}{1+\eta}
+ \geq1-\theta-2\eta\geq1-\epsilon.
+\]
+Apply the T7 gap-closing proof. The initial JL event is uniform
+over the initial candidates and moments; the exact identities and
+pathwise numerical bounds apply to every subsequent adaptive
+choice, so no sketch reuse on a new random matrix is assumed.
+Substitution of $\zeta_0=\Theta(\gamma\epsilon/p)$ into T6
+gives the dimension and the stated success probability.
+\end{proof}
+\noindent Numerical check: \texttt{scripts/verify\_t11\_practical.py}.
+
+\paragraph{Checking the sufficient conditions.}
+Valid intervals $[L_j(S),U_j(S)]$ and $[L_j(S_0),U_j(S_0)]$
+give the computable retention lower bound $L_j(S)/U_j(S_0)$.
+Alternatively an absolute error envelope $E_j(S)$ certifies the
+current relative tolerance directly whenever
+$E_j(S)\leq\zeta_*L_j(S)$. These follow by substituting the
+true moments between their respective endpoints. Residual and
+interval refinement can enforce the conditions used in
+Theorem~\ref{thm:practicalinc}. The factor and initial-sketch
+failure budgets add by a union bound when combining its gain
+guarantee with Theorem~\ref{thm:inccost}'s work guarantee.
+
+\paragraph{Refresh counts in the inspected night runs.}
+The current \texttt{inc} implementation has the flag semantics of
+Proposition~\ref{prop:incall}. Reading its completed run outputs,
+with one seed and no exact initialization, gives the following
+counts. Percentages use the initial $N=n-1$ candidates as denominator.
+The reported refresh total is a distinct-candidate count in this mode.
+\begin{center}
+\begin{tabular}{lrrrr}
+Graph / exponent / slack & $N$ & $R$ & Never refreshed & Percent\\\hline
+Amazon / 1 / 0 &334862&736&334126&99.780\\
+Amazon / 1 / 0.2 &334862&1232&333630&99.632\\
+DBLP / 1 / 0 &317079&256&316823&99.919\\
+DBLP / 1 / 0.2 &317079&448&316631&99.859\\
+Amazon / 2 / 0.2 &334862&1504&333358&99.551
+\end{tabular}
+\end{center}
+The incremental check verifies these arithmetic counts and the flag
+invariant. The source paths and the unmeasured retention conditions
+are recorded in \texttt{notes/gaps.md}.
+
+\subsection{Low-order marginals and Zhou's spectral score}
+
+\begin{proposition}[Finite-removal expansion and spectral weighting]
+\label{prop:zhoutaylor}
+Let $X$ be a grounded Laplacian with a simple smallest eigenpair
+$(\lambda_1,\phi_1)$, $\|\phi_1\|=1$, and orthonormal eigenbasis
+$\phi_i$. For an active candidate $v$, let $R=X^{-1}$,
+$x=Re_v$, $c=1/r_1$, $D=cxx^\top$, and $a_j=cr_{j+1}$.
+For $0\leq z\leq1$ put
+$Q_p(z)=\tr R^p-\tr(R-zD)^p$. Its endpoint $Q_p(1)$ is the
+hard-grounding marginal. For $p=2,3,4$,
+\begin{align*}
+ Q_2(z)&=2za_2-z^2a_1^2,\\
+ Q_3(z)&=3za_3-3z^2a_1a_2+z^3a_1^3,\\
+ Q_4(z)&=4za_4-z^2(4a_1a_3+2a_2^2)
+                       +4z^3a_1^2a_2-z^4a_1^4.
+\end{align*}
+Their first-order coefficient satisfies
+\[
+ Q_p'(0)=\frac p{r_1(v)}\sum_i\lambda_i^{-(p+1)}\phi_i(v)^2.
+\]
+For the weighted Zhou score
+$h_v=2\phi_1(v)\sum_{w\ne v}w_{vw}\phi_1(w)$,
+\[
+ h_v=2(X_{vv}-\lambda_1)\phi_1(v)^2.
+\]
+Whenever $X_{vv}>\lambda_1$,
+\[
+ Q_p'(0)=\frac{p\lambda_1^{-(p+1)}h_v}
+                    {2r_1(v)(X_{vv}-\lambda_1)}
+       +\frac p{r_1(v)}\sum_{i\geq2}
+                          \lambda_i^{-(p+1)}\phi_i(v)^2.
+\]
+The tail sum is at most
+$(1-\phi_1(v)^2)\lambda_2^{-(p+1)}$.
+For every integer $p\geq2$,
+\[
+ 0\leq zQ_p'(0)-Q_p(z)
+ \leq\frac{p(p-1)}2 z^2 a_1^2\|R\|^{p-2}.
+\]
+An infinitesimal soft penalty instead has coefficient
+$p\sum_i\lambda_i^{-(p+1)}\phi_i(v)^2$, without the division by
+$r_1(v)$.
+\end{proposition}
+\begin{proof}
+Expand the trace of $(R-zD)^p$ as noncommutative words and use
+cyclicity of the trace. Since $D$ has rank one,
+$\tr(DR^{j-1})=a_j$ and
+$\tr(DR^iDR^h)=a_{i+1}a_{h+1}$.
+For degree four the six words with two $D$'s have traces
+$4a_1a_3+2a_2^2$; the four with three $D$'s give
+$4a_1^2a_2$. The degree-two and degree-three counts give the
+remaining formulas. Differentiating at zero gives $pa_p$ and
+spectral decomposition gives its eigenmode expression. The
+$v$-coordinate of $X\phi_1=\lambda_1\phi_1$ proves the identity
+for $h_v$, and substitution gives the comparison. The tail bound
+uses $\sum_{i\geq2}\phi_i(v)^2=1-\phi_1(v)^2$.
+
+Put $K_z=R-zD\succeq0$. Differentiation gives
+$Q_p'(z)=p\tr(DK_z^{p-1})$ and
+\[
+ -Q_p''(z)=p\sum_{i=0}^{p-2}\tr(DK_z^iDK_z^{p-2-i}).
+\]
+Write $D=a_1ww^\top$ with $\|w\|=1$. Each summand equals
+$a_1^2(w^\top K_z^iw)(w^\top K_z^{p-2-i}w)$, between zero
+and $a_1^2\|R\|^{p-2}$ since $0\preceq K_z\preceq R$.
+Integrating twice gives the remainder bound. Finally
+$R-zD=(X+\beta e_ve_v^\top)^{-1}$ for
+$\beta=z/((1-z)r_1)$ when $z<1$, by Sherman--Morrison.
+Thus $dz/d\beta=r_1$ at zero and the soft coefficient follows.
+\end{proof}
+\noindent Numerical check: \texttt{scripts/verify\_t11\_zhou.py}.
+
+\paragraph{Mechanism and scope of simultaneous improvement.}
+At $p=2,3,4$ the first-order modal weights are respectively
+$\lambda^{-3},\lambda^{-4},\lambda^{-5}$. The finite-removal
+polynomials additionally account for the normalization $r_1(v)$
+and higher-order terms. They offer a precise mechanism for choices
+that differ from a single-eigenvector score while retaining
+weight on several slow modes. The four-node stress case in
+Proposition~\ref{prop:zhoustress} gives strict improvement in both
+metrics: its inverse-trace after selecting $a$ is at most two,
+whereas after Zhou's choice it exceeds two, and its smallest
+eigenvalue is larger.
+
+The opposite spectral ordering also occurs within the same family.
+Consider the grounded matrix
+\[
+ X=\begin{pmatrix}1&-9/10&0\\-9/10&3&-1/2\\0&-1/2&1\end{pmatrix}.
+\]
+Its three row sums are $1/10,8/5,1/2$, so it is realized by a
+connected weighted graph with one seed attached by those weights.
+The follower path and positivity imply that Zhou uniquely chooses
+the middle vertex. Its resulting matrix is $I_2$, giving spectral
+value one and inverse trace two. Deleting the first vertex gives
+eigenvalues $2\pm\sqrt5/2$, inverse trace $16/11$, and inverse
+power traces $168/121,1984/1331,24352/14641$ for $p=2,3,4$,
+each below two. Deleting the third leaves a smallest eigenvalue
+$2-\sqrt{181}/10<7/10$, so every $p\geq2$ inverse-power trace
+then exceeds two. Thus each of these three exact power-greedy
+choices improves CFCC but has spectral value $2-\sqrt5/2<1$.
+These explicit calculations, checked by
+\texttt{scripts/verify\_t11\_zhou.py}, distinguish a possible
+joint improvement from a universal ordering.
+
+\section{Road-network diagnosis: maintaining the sketches themselves}
+
+\begin{proposition}[Current-matrix sketch maintenance for hard CFCC]
+\label{prop:maintainedsketch}
+Let $A_0=X_{S_0}=C^\top C\succ0$ have dimension $N$.
+For $T\subset W$, write $R_T$ for the zero-padded inverse of
+$A_0[W\setminus T,W\setminus T]$. Fix matrices $G,H$ and maintain
+\[
+ Y_1=GCR_T,\qquad Y_2=HR_T.
+\]
+When grounding an active vertex $v$, one solve for $x=R_Te_v$
+updates both sketches exactly by
+\[
+ Y_i' =Y_i-\frac{Y_i[:,v]x^\top}{x_v},\qquad i=1,2.
+\]
+For every fixed $T$, if $G,H$ are independent Gaussian matrices
+with $d$ rows and entry variance $1/d$, then
+$\widehat r_1(u)=\|Y_1[:,u]\|^2$ and
+$\widehat r_2(u)=\|Y_2[:,u]\|^2$ are unbiased estimates of the
+\emph{current} moments $r_1(u,T),r_2(u,T)$.
+
+For $0<\zeta<1$, $0<\delta<1$, and a maximum of $k<N$ new anchors,
+put $M=\sum_{t=0}^k\binom Nt(N-t)$. If
+\[
+ d\geq8\zeta^{-2}\log(4M/\delta),
+\]
+both estimates have simultaneous relative error at most $\zeta$
+at every active vertex of every such set, with probability at
+least $1-\delta$. This event covers adaptive choices made from
+the maintained sketches. Choosing the maximum estimated ratio
+$\widehat r_2/\widehat r_1$, or exactly rescoring a candidate
+pool containing that maximizer and choosing its best member,
+achieves a maximum-marginal fraction at least
+$\alpha=((1-\zeta)/(1+\zeta))^2$. For $k$ selections its
+normalized gain is at least $(1-e^{-\alpha})\mathrm{OPT}_k$.
+In particular $\zeta\leq\epsilon/4$ gives the T7
+$(1-e^{-1}-\epsilon)$ factor. The sufficient row count has order
+$O(\zeta^{-2}((k+1)\log(N+1)+\log(1/\delta)))$.
+
+Each update costs $O(Nd)$ scalar work and uses $O(Nd)$ sketch
+storage. The selected-column solve can be reused from rescoring;
+no $R_T^2e_v$ solve is needed for this sketch update.
+
+Moreover, for any row-vector error $e$ supported on the active
+coordinates, its exact-column update $e'=e-e_vx^\top/x_v$ obeys
+\[
+ \|e'\|_{A_0}^2=\|e\|_{A_0}^2-e_v^2/x_v.
+\]
+Thus accumulated initial sketch-solve errors are contractive in
+the fixed $A_0$ energy norm under exact subsequent columns.
+\end{proposition}
+\begin{proof}
+Sherman--Morrison in its hard zero-padded form gives
+$R_{T+v}=R_T-xx^\top/x_v$. Multiplying on the left by $GC$ or
+$H$ proves the update because $Y_i[:,v]$ is that left factor
+times $x$. On active coordinates $R_TA_0R_T=R_T$, and all
+remaining rows and columns of both sides are zero. Consequently
+\[
+ \|CR_Te_u\|^2=r_1(u,T),\qquad
+ \|R_Te_u\|^2=r_2(u,T).
+\]
+For a fixed deterministic set and candidate, Gaussian norm
+concentration gives failure at most $2e^{-d\zeta^2/8}$ for each
+of the two vectors. There are $2M$ vectors across all sets and
+candidates, so the stated row count gives the joint event.
+Since it holds simultaneously for this deterministic family,
+it also holds along every adaptive selection path. The bound
+$M\leq N(k+1)N^k$ gives the stated asymptotic dimension.
+
+On the event each ratio is between $(1-\zeta)/(1+\zeta)$ and
+$(1+\zeta)/(1-\zeta)$ times its true marginal. Comparing an
+estimated maximizer to a true maximizer therefore gives $\alpha$.
+Exact rescoring a pool containing that candidate can only improve
+the true marginal at the same current set. The T7 induction gives
+$1-e^{-\alpha}$; since $1-\alpha=4\zeta/(1+\zeta)^2\leq4\zeta$,
+the final approximation follows. The two rank-one outer products
+and recomputation of column norms use $O(Nd)$ operations and
+storage, in addition to one selected-column solve.
+
+For a supported row $e$, the active inverse equations imply
+$eA_0x=e_v$ and $x^\top A_0x=x_v$. Expanding the squared energy
+norm gives the last identity. The new row has zero at $v$ and
+at every previous anchor, so the contraction can be iterated.
+\end{proof}
+\noindent Numerical check:
+\texttt{scripts/verify\_road\_sketch\_update.py}.
+
+\paragraph{Initial solve errors in the maintained sketches.}
+For a matrix error $E$ with supported rows, define
+$\|E\|_{F,A_0}^2=\tr(EA_0E^\top)$.
+Cauchy--Schwarz with the representer $R_Te_u$ gives
+$\|E[:,u]\|\leq\sqrt{r_1(u,T)}\|E\|_{F,A_0}$.
+Let $B\geq\lambda_{\max}(A_0)$ and let $e_i$ bound the initial
+energy errors for the two sketch matrices. The contraction above
+keeps those bounds valid under exact-column updates. On the
+simultaneous Gaussian event, the relative squared-norm errors
+are at most
+\[
+ \zeta+2\sqrt{1+\zeta}\,e_1+e_1^2,
+ \qquad
+ \zeta+2\sqrt{1+\zeta}\sqrt B\,e_2+B e_2^2,
+\]
+respectively. To obtain the second bound, use the spectral
+inequality $r_1\leq B r_2$. Both follow by expanding the
+perturbed norm square and bounding the cross term. They are
+also checked by the script above.
+
+\section{T12: adaptive hybrid sketches and higher powers}
+
+This section uses hard grounding and the fixed admissible seed
+$S_0$. Write $W=V\setminus S_0$, $N=|W|$,
+$A_0=C^\top C\succ0$, and let $R_T$ be the zero-padded inverse
+on $W\setminus T$. The budget $k<N$ counts \emph{additional}
+anchors. In particular, a run with one seed and twenty total
+anchors has $k=19$ here.
+
+\begin{proposition}[Higher-power sketch maintenance]
+\label{prop:highermaintained}
+Fix a matrix $F$ and an integer $L\geq1$, and store
+$Y_\ell=FR_T^\ell$ for $1\leq\ell\leq L$.
+Before grounding $v$, put $R=R_T$, $x=Re_v$, $c=1/x_v$,
+$a_i=R^ix$, and $s_i=x^\top a_i$. Define
+\[
+ b_0=x,\qquad
+ b_t=a_t-c\sum_{i=0}^{t-1}s_i b_{t-1-i}
+ \quad(1\leq t<L).
+\]
+All levels update simultaneously by
+\begin{equation}\label{eq:highermaintained}
+ Y_\ell'=Y_\ell-c\sum_{i=0}^{\ell-1}
+             Y_{i+1}[:,v]b_{\ell-1-i}^\top.
+\end{equation}
+Every vector on the right is its pre-update value.
+Apply this construction to $F=H$ and $F=GC$, with $d$ rows each.
+The squared columns of $HR_T^\ell$ and $GCR_T^\ell$ estimate,
+respectively, $r_{2\ell}(u,T)$ and $r_{2\ell-1}(u,T)$.
+Thus moments through $p+1$ need $L=\lceil(p+1)/2\rceil$.
+
+Initialization uses at most $2dL$ right-hand-side solves.
+An update uses at most $L$ selected-column solves,
+$O(NdL^2)$ arithmetic, and $O(NdL)$ storage; existing selected
+columns can be reused. The formula specializes to the two
+rank-one updates of Proposition~\ref{prop:maintainedsketch}
+when $p=1$. For $p=2$, it additionally gives
+\[
+ Y_2'=Y_2-cY_1[:,v](Rx-c\|x\|^2x)^\top
+                 -cY_2[:,v]x^\top.
+\]
+\end{proposition}
+\begin{proof}
+Let $K=R-cxx^\top=R_{T+v}$. The generating-function calculation
+in T11 gives $b_t=K^tx$; alternatively it follows by comparing
+coefficients in
+\[
+ (I-zK)^{-1}x=
+ \frac{(I-zR)^{-1}x}{1+czx^\top(I-zR)^{-1}x}.
+\]
+The noncommutative telescoping identity
+\[
+ R^\ell-K^\ell=c\sum_{i=0}^{\ell-1}R^ixx^\top K^{\ell-1-i}
+\]
+follows by expanding the consecutive differences
+$R^{i+1}K^{\ell-1-i}-R^iK^{\ell-i}$ and summing.
+Multiplication by $F$ proves \eqref{eq:highermaintained}, since
+$FR^ix=Y_{i+1}[:,v]$ and $K$ is symmetric.
+Snapshotting all columns $Y_\ell[:,v]$ before any update gives
+an in-place implementation of this identity.
+
+For every $T$, $R_TA_0R_T=R_T$. Therefore
+\[
+ \|R_T^\ell e_u\|^2=r_{2\ell}(u,T),\qquad
+ \|CR_T^\ell e_u\|^2=r_{2\ell-1}(u,T).
+\]
+These identities prove the moment targets for isotropic sketches.
+The chain $a_0,\ldots,a_{L-1}$ uses $L$ solves; its inner
+products and the $b_t$ recurrence cost $O(NL^2)$.
+There are $\sum_{\ell=1}^L\ell=O(L^2)$ outer products per
+sketch family, costing $O(NdL^2)$. The stored levels and
+selected chains take $O(NdL)$ space. Repeatedly solving each
+of the two families of $d$ starting rows gives initialization.
+For $L=2$, $b_1=Rx-c\|x\|^2x$, giving the final formula.
+\end{proof}
+\noindent Numerical check:
+\texttt{scripts/verify\_t12\_higher\_sketch.py}.
+
+\begin{theorem}[Uniform adaptive moment accuracy]
+\label{thm:adaptivehybridjl}
+Let all entries of $G,H$ be independent centered Gaussians of
+variance $1/d$, or independent signs $\pm1/\sqrt d$.
+For $J=p+1$, $0<\zeta,\delta<1$, put
+\[
+ M_{N,k}=\sum_{t=0}^k\binom Nt(N-t),\qquad
+ d_{\rm reuse}=\left\lceil
+    8\zeta^{-2}\log\frac{2JM_{N,k}}{\delta}\right\rceil.
+\]
+With $d\geq d_{\rm reuse}$ and exact sketch maintenance,
+all $J$ moment estimates have relative error at most $\zeta$
+at every active vertex of every $|T|\leq k$, with probability
+at least $1-\delta$. The same event covers every adaptive
+selection rule, refresh pattern, and stopping decision.
+With $\zeta\leq\eta/(16p)$, the computed integer marginals
+have relative error at most $\eta$ by
+Theorem~\ref{thm:polymoment}.
+
+For comparison, new independent sketches in each of $k$ rounds
+need only
+\[
+ d_{\rm fresh}=\left\lceil
+       8\zeta^{-2}\log\frac{2JNk}{\delta}\right\rceil
+\]
+for the same ideal-solve moment event along the chosen path.
+In particular, the sufficient dimensions have orders
+\begin{align*}
+ d_{\rm reuse}
+ &=O\!\left(p^2\eta^{-2}
+       \left[(k+1)\log(N+1)+\log(p/\delta)\right]\right),\\
+ d_{\rm fresh}
+ &=O\!\left(p^2\eta^{-2}\log(Npk/\delta)\right).
+\end{align*}
+\end{theorem}
+\begin{proof}
+For a deterministic nonzero vector $w$, let $Z$ be one
+unscaled sketch row dotted with $w/\|w\|$. In either distribution,
+$\E Z^2=1$, $\E Z^4\leq3$, and
+$\E e^{tZ}\leq e^{t^2/2}$. For signs the last inequality follows
+from $\cosh x\leq e^{x^2/2}$ and independence. Integrating
+against an auxiliary standard Gaussian yields
+$\E e^{tZ^2}\leq(1-2t)^{-1/2}$ for $0<t<1/2$.
+Chernoff's bound with $t=\zeta/[2(1+\zeta)]$ bounds the upper
+tail of the average of $d$ independent $Z^2$ by
+\[
+ \exp\{-d[\zeta-\log(1+\zeta)]/2\}
+ \leq e^{-d\zeta^2/8}.
+\]
+Here $\zeta-\log(1+\zeta)\geq\zeta^2/4$ on $[0,1]$, as
+follows by differentiating the difference.
+For the lower tail, $e^{-y}\leq1-y+y^2/2$ for $y\geq0$
+gives $\E e^{-tZ^2}\leq\exp(-t+3t^2/2)$.
+Taking $t=\zeta/3$ gives $e^{-d\zeta^2/6}$.
+The combined two-sided failure is at most $2e^{-d\zeta^2/8}$.
+
+The targets $R_T^\ell e_u$ and $CR_T^\ell e_u$ form a
+\emph{deterministic} family with $JM_{N,k}$ members when only
+the first $J$ moments are retained. They are nonzero at active
+vertices. The preceding tail bound and a union bound prove the
+claim. Their correlations, including shared rows across powers,
+do not affect this union bound. Once the event holds, adaptively
+choosing a member of this family cannot invalidate it.
+The higher-power identity computes precisely these fixed-randomness
+sketches. Unbiasedness for each deterministic $T$ supplies the
+moment identity, while this simultaneous event supplies the
+adaptive guarantee.
+
+With fresh randomness, condition on the complete history at each
+round; its current matrix is then fixed independently of the new
+rows. A union bound over at most $NJ$ current moments and a
+conditional failure budget $\delta/k$ proves the fresh formula.
+Finally $M_{N,k}\leq N(k+1)N^k$ and
+$\zeta=\eta/(16p)$ prove the stated orders.
+\end{proof}
+\noindent Numerical check:
+\texttt{scripts/verify\_t12\_adaptive.py}.
+
+\begin{theorem}[Hybrid retention and capped refreshes]
+\label{thm:hybridcap}
+At each state, suppose every not-yet-refreshed marginal estimate
+satisfies
+$(1-\eta)\Delta_u\leq\widehat\Delta_u\leq(1+\eta)\Delta_u$,
+and refreshed candidates are maintained exactly by T11.
+Use the estimate itself as the heap key for an unrefreshed
+candidate and the exact marginal for a refreshed one.
+Let $0\leq\theta<1$ be an acceptance tolerance. Process keys
+in descending order, exactly rescoring batches of unrefreshed
+candidates and retaining the best exact value $b$. Stop either
+when $b\geq(1-\theta)K$, where $K$ is the largest remaining
+key, or after a positive refresh budget has been reached, and
+return the best processed candidate. Every processed refreshed
+candidate is included in this comparison. If a budget stop occurs,
+at least the initial maximum-key candidate has been processed.
+Then the selected marginal is at least
+\[
+ \alpha\max_u\Delta_u,\qquad
+ \alpha=\min\left\{\frac{1-\eta}{1+\eta},
+                           (1-\theta)(1-\eta)\right\}.
+\]
+The $k$-round normalized gain is at least
+$(1-e^{-\alpha})\mathrm{OPT}_k$.
+In particular $\eta\leq\epsilon/4$ and $\theta\leq\epsilon/2$
+give $(1-1/e-\epsilon)\mathrm{OPT}_k$ on the uniform event of
+Theorem~\ref{thm:adaptivehybridjl}.
+
+For $p=1$, put $\chi=(1+\zeta)/(1-\zeta)$ on its moment event.
+The sharper factor is
+$\alpha=\min\{\chi^{-2},(1-\theta)\chi^{-1}\}$; thus
+$\zeta\leq\epsilon/8$ and $\theta\leq\epsilon/2$ suffice.
+Arbitrarily many candidates can be kept exact after their first
+refresh. Their total number of refreshes is $R\leq N$.
+\end{theorem}
+\begin{proof}
+Both types of key lie between $(1-\eta)\Delta_u$ and
+$(1+\eta)\Delta_u$. If $u_*$ maximizes the true marginal and
+$w$ has maximum initial key, then
+\[
+ \Delta_w\geq\frac{\mathrm{key}(w)}{1+\eta}
+ \geq\frac{1-\eta}{1+\eta}\Delta_{u_*}.
+\]
+A budget stop has processed $w$ and returns a candidate no worse
+than $w$. At an acceptance stop, every processed true value is
+at most $b$, and every unprocessed one is at most $K/(1-\eta)$.
+Thus $b\geq(1-\theta)(1-\eta)\Delta_{u_*}$.
+Taking the minimum covers both stopping rules, including an
+empty remaining heap. Positive-budget batching may overshoot
+its nominal size without changing this argument.
+
+By T1 the gain is normalized, monotone, and submodular relative
+to $S_0$. At each round its remaining gap to the best $k$-element
+extension is at most $k$ times the largest current marginal.
+The gap therefore contracts by at least $1-\alpha/k$ at every
+step, proving $1-(1-\alpha/k)^k\geq1-e^{-\alpha}$.
+Moreover $1-\alpha\leq\max\{2\eta,\eta+\theta\}\leq\epsilon$,
+and $e^{-\alpha}-e^{-1}\leq1-\alpha$ proves the claimed factor.
+For $p=1$ each ratio key is between $\Delta_u/\chi$ and
+$\chi\Delta_u$. Repeat the same proof with these endpoints.
+Here $1-\chi^{-2}\leq4\zeta$ and
+$1-(1-\theta)\chi^{-1}\leq\theta+2\zeta$.
+Exact retention follows from the independent-column decrement
+identity in T11; each false-to-true refresh flag changes at most
+once. Replacing any sketched value by its exact value preserves
+all the preceding key inequalities, even for an adaptively
+chosen subset of candidates.
+\end{proof}
+\noindent Numerical check:
+\texttt{scripts/verify\_t12\_hybrid.py}.
+
+\paragraph{Work of the maintained and hybrid variants.}
+Let $\mathcal T_t$ bound one required-precision solve on the
+current active matrix, and let $T_{\rm refresh}$ include all
+candidate rescoring. Pure higher-power sketch maintenance costs
+\[
+ O\!\left(dm+2dL\mathcal T_0+
+       L\sum_{t=0}^{k-1}\mathcal T_t+
+       kNdL^2+kNp^2+T_{\rm refresh}\right),
+\]
+using $O(NdL)$ sketch memory in addition to solver storage.
+The $kNp^2$ term evaluates integer marginals from moments.
+For hybrid retention, the selected chain for scalar exact updates
+extends to $p+1$ columns, replacing $L$ by $p+1$ in the selected
+solve term; the T11 scalar work is $O(Nkp^2)$ and its storage
+$O(Np)$. Heap rebuilding costs $O(kN)$ and removals
+$O((R+kR+k)\log N)$, allowing every previously refreshed
+candidate to be processed in every later round.
+At $p=1$ this gives two initial sketch families, one selected
+solve for sketch-only maintenance or two for the hybrid, and
+$O(Nd)$ work per update. Reuse of refreshed chains reduces the
+actual solve count. The adaptive union bound increases $d$;
+it trades repeated all-node solves for maintained arrays, rather
+than identifying the two algorithms' worst-case work.
+The higher-sketch and hybrid scripts check these operation counts.
+
+\begin{proposition}[Residual budgets for maintained sketches]
+\label{prop:sketchresidual}
+Let $a\leq\lambda_{\min}(A_0)$ and
+$B\geq\lambda_{\max}(A_0)$. At a $p=1$ update, let
+$\widetilde x$ be supported on the current active set $U$, with
+$\widetilde x_v>0$ and
+$\|A_0[U,U]\widetilde x_U-e_v\|_2\leq\rho$.
+For either sketch, perform
+\[
+ \widetilde Y'=
+ \widetilde Y-\widetilde Y[:,v]\widetilde x^\top/
+                 \widetilde x_v+D,
+\]
+where $D$ has zero columns on all new and old anchors and
+$\|D\|_{F,A_0}\leq\omega$.
+If $e\geq\|\widetilde Y-Y\|_{F,A_0}$ before the update, then
+\begin{equation}\label{eq:sketchresidual}
+ e'=e+\frac{\|\widetilde Y[:,v]\|_2\rho}
+                   {\sqrt a\,\widetilde x_v}+\omega
+\end{equation}
+is a valid bound afterwards. This recurrence is deterministic
+along adaptive selections. At every state the two moment errors
+are bounded by
+\[
+ \zeta+2\sqrt{1+\zeta}\,e_1+e_1^2,\qquad
+ \zeta+2\sqrt{1+\zeta}\sqrt B\,e_2+B e_2^2
+\]
+on the ideal-sketch event, where $e_1,e_2$ are their current
+accumulated energy bounds.
+
+For higher powers, a sufficient alternative certificate uses
+active-coordinate residuals
+$\rho_\ell=\|\widetilde Y_\ell A_U-\widetilde Y_{\ell-1}\|_F$,
+with $\widetilde Y_0=F[:,U]$ exact. Recursively let
+$E_0=0$ and $E_\ell=(E_{\ell-1}+\rho_\ell)/a$.
+Then $\|\widetilde Y_\ell-F[:,U]A_U^{-\ell}\|_F\leq E_\ell$.
+For even moments take $e=B^\ell E_\ell$, and for odd moments
+take $e=B^{\ell-1/2}E_\ell$. Their relative squared-norm error
+is at most $\zeta+2\sqrt{1+\zeta}\,e+e^2$.
+\end{proposition}
+\begin{proof}
+Let $x=R_Te_v$, $h=\widetilde x-x$, and $h_v=\widetilde x_v-x_v$.
+Active inverse equations give
+$\|h\|_{A_0}\leq\rho/\sqrt a$,
+$\langle h,x\rangle_{A_0}=h_v$, and
+$\|x\|_{A_0}^2=x_v$. Therefore
+\[
+ \left\|\frac{\widetilde x}{\widetilde x_v}
+              -\frac{x}{x_v}\right\|_{A_0}^2
+ =\frac{\|h\|_{A_0}^2-h_v^2/x_v}{\widetilde x_v^2}
+ \leq\frac{\rho^2}{a\widetilde x_v^2}.
+\]
+Write $P=I-e_vx^\top/x_v$ and $E=\widetilde Y-Y$.
+Subtracting the exact update yields
+\[
+ \widetilde Y'-Y'=EP+
+ \widetilde Y[:,v]\left(x/x_v-\widetilde x/\widetilde x_v\right)^\top+D.
+\]
+Proposition~\ref{prop:maintainedsketch} contracts $EP$ in energy.
+The energy norm of an outer product is the product of the
+Euclidean norm of its left vector and the energy norm of its
+right vector. The triangle inequality proves
+\eqref{eq:sketchresidual}. All new errors remain supported on
+unselected coordinates, so the argument iterates. Applying the
+coordinate-representer bounds after
+Proposition~\ref{prop:maintainedsketch} proves the moment bounds.
+
+For higher powers, subtract the exact chain equation at each
+level and multiply by $A_U^{-1}$, whose norm is at most $1/a$
+by principal-submatrix interlacing. This proves the $E_\ell$
+recurrence. The true target squared norms are at least
+$B^{-2\ell}$ and $B^{-(2\ell-1)}$, respectively. On the ideal
+JL event, their sketched norm is at most $\sqrt{1+\zeta}$
+times the true target norm. Expanding a perturbed squared norm
+and bounding its cross term proves the final error expression.
+\end{proof}
+\noindent Numerical check:
+\texttt{scripts/verify\_t12\_residual.py}.
+
+\paragraph{Instantiating numerical budgets.}
+For example, a $p=1$ target moment tolerance $\bar\zeta<1$
+is met by an ideal-sketch tolerance $\zeta=\bar\zeta/2$ and
+$e_1,\sqrt B e_2\leq\bar\zeta/8$; substitution in the preceding
+bound is at most $\bar\zeta$. Initial solve errors, subsequent
+column residuals, and rounding terms share these budgets.
+The same substitution applies to the higher-power normalized
+errors $e$. Refreshed scalar entries use the T11 decrement
+intervals and refresh-error bounds; if their resulting relative
+marginal error is at most $\nu$, replacing exact values throughout
+the hybrid proof loses at most the additional factor
+$(1-\nu)/(1+\nu)$, with key tolerance enlarged to
+$\max\{\eta,\nu\}$. This follows by comparing the largest
+computed processed value with the largest true processed value
+before applying the two stopping arguments. Residual evaluation
+for every higher-power level costs $O(dL(m+N))$ per checked
+state and is charged separately when used. These statements
+specify numerical conditions, in addition to the sketch event,
+for an inexact implementation of the preceding algorithms.
+
+\begin{thebibliography}{10}
+\bibitem{uehara1996} R. Uehara,
+``NP-complete problems on a 3-connected cubic planar graph and
+ their applications,'' Technical Report 4, 1996.
+\url{https://www.jaist.ac.jp/~uehara/pdf/triangle.pdf}.
+\bibitem{li2019} H. Li, R. Peng, L. Shan, Y. Yi, and Z. Zhang,
+``Current Flow Group Closeness Centrality for Complex Networks,''
+WWW, 2019; arXiv:1802.02556, Sections 3--5.
+\bibitem{ss2011} D. A. Spielman and N. Srivastava,
+``Graph Sparsification by Effective Resistances,'' SIAM J. Comput.,
+2011; arXiv:0803.0929, Section 4.
+\bibitem{kyng2016} R. Kyng and S. Sachdeva,
+``Approximate Gaussian Elimination for Laplacians: Fast, Sparse, and
+Simple,'' FOCS, 2016; arXiv:1605.02353.
+\bibitem{wilson1996} D. B. Wilson,
+``Generating Random Spanning Trees More Quickly than the Cover Time,''
+STOC, 1996.
+\bibitem{xia2025} H. Xia and Z. Zhang,
+``Fast Maximization of Current Flow Group Closeness Centrality,''
+arXiv:2504.04472v1, 2025, Sections III--IV.
+\bibitem{zhou2023} X. Zhou, R. Wang, W. Li, and Z. Zhang,
+``Maximizing the Smallest Eigenvalue of Grounded Laplacian Matrix,''
+arXiv:2110.12576v4, 2023.
+\bibitem{wang2026} G. Wang, H. Xia, R. Zhang, and Z. Zhang,
+``Fast Algorithms for Group Markov Centrality Optimization,''
+KDD, 2026, pp. 1412--1423, doi:10.1145/3770854.3780201.
+\bibitem{fastfrac} ``FastFrac: Fast Edge Recommendation for Fractional
+Spectral Traces on Graphs,'' provided manuscript, Section IV.
+\bibitem{polar} ``POLAR: Fractional Spectral Link Recommendation via
+Pole-Shared Krylov Sketching,'' provided manuscript.
+\end{thebibliography}
+\end{document}

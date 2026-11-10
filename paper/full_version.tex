@@ -1,0 +1,17 @@
+% Full version (technical report): the submission text plus appendices
+% with complete proofs, implementation details, and additional results.
+\documentclass[conference]{IEEEtran}
+\newif\iffull
+\fulltrue
+\input{preamble.tex}
+\begin{document}
+\raggedbottom
+\input{body.tex}
+\input{references.tex}
+\clearpage
+\appendices
+\setcounter{theorem}{0}
+\renewcommand{\thetheorem}{A\arabic{theorem}}
+\renewcommand{\theHtheorem}{A\arabic{theorem}}
+\input{appendix.tex}
+\end{document}

@@ -1,0 +1,14 @@
+schur round 1: v=750 T=788 forests=1400 walk_steps=7064702453 stop=cap time=490.590 total=491.199
+schur round 2: v=40810 T=788 forests=1400 walk_steps=7063725423 stop=cap time=487.477 total=983.593
+schur round 3: v=94556 T=788 forests=1400 walk_steps=7064550528 stop=cap time=473.689 total=1460.310
+schur round 4: v=427162 T=788 forests=1400 walk_steps=7064509847 stop=cap time=473.813 total=1937.056
+schur round 5: v=4924 T=788 forests=1400 walk_steps=7065061788 stop=cap time=468.560 total=2409.228
+schur round 6: v=14034 T=788 forests=1400 walk_steps=7063529363 stop=cap time=479.258 total=2891.430
+schur round 7: v=104541 T=788 forests=1400 walk_steps=7064644346 stop=cap time=490.986 total=3385.453
+schur round 8: v=63744 T=788 forests=1400 walk_steps=7065515305 stop=cap time=490.660 total=3880.176
+schur round 9: v=153413 T=788 forests=1400 walk_steps=7065891948 stop=cap time=476.848 total=4361.125
+schur round 10: v=83306 T=788 forests=1400 walk_steps=7064401397 stop=cap time=467.033 total=4831.885
+schur round 11: v=145338 T=788 forests=1400 walk_steps=7064029364 stop=cap time=476.744 total=5311.218
+schur round 12: v=1166 T=788 forests=1400 walk_steps=7065063262 stop=cap time=474.806 total=5790.038
+schur round 13: v=2905 T=788 forests=1400 walk_steps=7064767748 stop=cap time=481.298 total=6273.892
+schur round 14: v=18804 T=788 forests=1400 walk_steps=7063985114 stop=cap time=485.184 total=6761.864

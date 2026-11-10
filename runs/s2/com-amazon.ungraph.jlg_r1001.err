@@ -1,0 +1,20 @@
+approxchol: build 0.47 s, factor entries 1633549 (m=925872)
+round 1: v=50928 est=1604.94 time=5.98 total=6.45
+round 2: v=334600 est=2065.86 time=6.02 total=12.48
+round 3: v=330620 est=1065.27 time=6.77 total=19.25
+round 4: v=42903 est=636.629 time=7.39 total=26.64
+round 5: v=334194 est=518.307 time=7.79 total=34.43
+round 6: v=334228 est=543.35 time=7.94 total=42.37
+round 7: v=333218 est=541.14 time=8.25 total=50.62
+round 8: v=333248 est=533.643 time=8.39 total=59.01
+round 9: v=319819 est=638.738 time=8.61 total=67.62
+round 10: v=333916 est=348.06 time=9.43 total=77.05
+round 11: v=6998 est=445.918 time=9.47 total=86.52
+round 12: v=333681 est=547.847 time=9.60 total=96.12
+round 13: v=330772 est=284.5 time=10.23 total=106.35
+round 14: v=331544 est=255.401 time=11.53 total=117.88
+round 15: v=318430 est=332.89 time=11.00 total=128.88
+round 16: v=333162 est=273.855 time=11.46 total=140.35
+round 17: v=334288 est=303.153 time=11.89 total=152.24
+round 18: v=322513 est=255.76 time=12.67 total=164.91
+round 19: v=334422 est=243.71 time=12.45 total=177.37
