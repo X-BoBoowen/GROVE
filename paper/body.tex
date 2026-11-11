@@ -1,34 +1,36 @@
 % Shared paper body.
 \title{GROVE: Reusing Solution Sketches\\for Current-Flow Group Selection\iffull\\{\large(With Proof Appendices)}\fi}
 \author{
-\IEEEauthorblockN{Bowen Xue\IEEEauthorrefmark{1}, Tianyi Chen\IEEEauthorrefmark{1}, Xuanning Zeng\IEEEauthorrefmark{1}, Qiao Qi\IEEEauthorrefmark{1}, Yongtai Liu\IEEEauthorrefmark{2}, Zifeng Peng\IEEEauthorrefmark{1}}
+\IEEEauthorblockN{Bowen Xue\IEEEauthorrefmark{1}, Tianyi Chen\IEEEauthorrefmark{1}, Xuanning Zeng\IEEEauthorrefmark{1}, Zifeng Peng\IEEEauthorrefmark{1}, Qiao Qi\IEEEauthorrefmark{1}\IEEEauthorrefmark{3}, Yongtai Liu\IEEEauthorrefmark{2}\IEEEauthorrefmark{3}}
 \IEEEauthorblockA{
 \IEEEauthorrefmark{1}Hangzhou Normal University, Hangzhou, China\\
 \IEEEauthorrefmark{2}Hanyang University, Republic of Korea\\
 \texttt{15869667756@163.com, hi@tychen.cc, zengxuanning49@gmail.com}\\
-\texttt{qiqiao@hznu.edu.cn, yt2024259263@hanyang.ac.kr, p1057947506@163.com}}
+\texttt{p1057947506@163.com, qiqiao@hznu.edu.cn}\IEEEauthorrefmark{3}\texttt{, yt2024259263@hanyang.ac.kr}\IEEEauthorrefmark{3} (\IEEEauthorrefmark{3}corresponding authors)}
 }
 \maketitle
 \begin{abstract}
 Current-flow group closeness centrality (CFCC) selects network anchors
 by minimizing the grounded Laplacian inverse trace. Greedy optimization
-repeatedly estimates every remaining vertex's marginal contribution,
-requiring expensive solves after each selection. We present \alg{},
-which reuses two solution sketches through rank-one grounding updates.
-Unrefreshed candidates use the current sketches, while refreshed
-candidates retain inverse moments obtained through individual numerical
-solves. A per-round cap limits additional candidate refreshes.
+must re-estimate every remaining vertex's marginal contribution after
+each selection. Rebuilding the estimates every round repeats expensive
+batches of solves; caching them once and correcting them algebraically
+is cheap, but its relative errors grow as the estimated quantities
+shrink. We present \alg{}, which maintains two solution sketches of
+the current grounded inverse through rank-one updates and, for
+refreshed candidates, retains inverse moments obtained from individual
+numerical solves; a per-round cap limits refreshes.
 A uniform concentration argument, combined with residual bounds,
 yields a $(1-1/e-\epsilon)$ approximation to optimal gain relative
-to a fixed seed under explicit sufficient conditions, whose sketch
-dimension is far above the empirical $d=64$; $\epsilon>0$ is the
-accuracy parameter. On six graphs with completed comparisons, \alg{}
+to a fixed seed under explicit sketch and residual conditions, for
+accuracy parameter $\epsilon>0$. On six graphs with completed comparisons, \alg{}
 is $1.1$--$5.7\times$ faster than ApproxGreedy in the main runs, and
 $1.4$--$3.8\times$ faster in four-seed means on four graphs. Final
 inverse traces differ by at most 1.6\% across the compared methods;
 the forest methods reach lower traces on roadNet-PA, and the
-smallest-eigenvalue heuristic of Zhou et al.\ is faster on DBLP. Runtime components and ablations show
-where reuse saves work and where updates or refreshes remain costly.
+smallest-eigenvalue heuristic of Zhou et al.\ is faster on DBLP.
+The cached shortcut ends 13.5\% higher in inverse trace than \alg{}
+on roadNet-PA, at $2.5\times$ the time.
 On LiveJournal, with 4.0 million vertices, \alg{} finishes in 4626
 seconds. Supporting structural results cover completely monotone
 grounding objectives, and inverse-power experiments characterize the
@@ -70,7 +72,9 @@ norm---once, then subtracts algebraic decrements after each selection.
 The initial sketch error persists in absolute terms. As true moments
 shrink, their relative errors grow and may distort the ranking, and
 the cache gives no way to tell beforehand on which inputs this happens.
-The shortcut is competitive on most graphs we test and fails on one.
+The shortcut is competitive on most graphs we test, but on roadNet-PA
+it ends with a 13.5\% higher inverse trace at $2.5\times$ the time of
+our method.
 
 \alg{} combines two forms of reuse. It maintains two solution sketches
 of the current grounded inverse, updating them through rank-one
@@ -105,13 +109,15 @@ advantage on web-Google, and small quality tradeoffs rather than
 uniform dominance. The largest completed input has about four million
 vertices.
 
-As a supporting extension, we study completely monotone (CM) trace
-objectives. Hard-CFCC supermodularity and hardness are already
+CFCC and the smallest grounded eigenvalue targeted by Zhou's
+heuristic are usually treated as separate objectives. As a supporting
+extension, completely monotone (CM) trace objectives place them in one
+family. Hard-CFCC supermodularity and hardness are already
 known~\cite{li2019}; our structural result covers all inverse powers
 and heat traces under grounding. Increasing the inverse exponent
-emphasizes slower modes. Separate exact-marginal experiments use this
-parameter to trade aggregate resistance against the smallest grounded
-eigenvalue. These objective choices complement the CFCC algorithm.
+emphasizes slower modes. In separate exact-marginal experiments,
+raising it from 1 to 4 increases the smallest grounded eigenvalue by
+$1.51$--$2.33\times$ while the inverse trace rises by at most 0.60\%.
 
 \smallskip\noindent\textbf{Contributions.}
 \begin{enumerate}[leftmargin=*,itemsep=2pt,topsep=3pt]
@@ -1590,9 +1596,10 @@ spectral objectives.
 
 \section*{Acknowledgment}
 Generative AI tools, including OpenAI ChatGPT/Codex and Anthropic
-Claude, assisted with language editing and code implementation.
-They also helped develop parts of the proofs and identify
-counterexamples based on the authors' ideas and preliminary
-verification approaches. The authors reviewed the AI-assisted
+Claude, assisted with drafting and revising prose throughout the
+manuscript and implementing experiment code for Section~VI.
+They also helped develop parts of the proofs and counterexample
+analysis in Sections~II--V, based on the authors' ideas and
+preliminary verification approaches. The authors reviewed the AI-assisted
 content, checked its accuracy, and take full responsibility
 for the final manuscript.
