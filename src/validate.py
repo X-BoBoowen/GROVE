@@ -2,7 +2,7 @@
 usage: python validate.py <ground binary> <graph.bin>
 Checks: seed (argmin L^+_vv), exact refresh marginals p=1..4,8 vs dense deletion, dense greedy vs celf/jlg sets,
 eval (tr X^-1, tr X^-2, lambda_min) vs dense."""
-import sys, json, subprocess, numpy as np
+import sys, json, subprocess, tempfile, numpy as np
 
 exe, gpath = sys.argv[1], sys.argv[2]
 
@@ -61,8 +61,9 @@ for p in (1, 2, 4):
     print(f"      exact-lazy CELF == dense greedy: {lazy == dense}")
     ok &= lazy == dense
     S = celf["set"]
-    open("/tmp/claude-1000/-home-ava-Desktop-ICDE/fbf4e338-b185-4e34-b5c5-46addcef2ed9/scratchpad/set.txt", "w").write(" ".join(map(str, S)))
-    ev = json.loads(run("eval", gpath, "--set", "/tmp/claude-1000/-home-ava-Desktop-ICDE/fbf4e338-b185-4e34-b5c5-46addcef2ed9/scratchpad/set.txt", "--probes", 512))
+    with tempfile.NamedTemporaryFile("w", suffix=".txt") as sf:
+        sf.write(" ".join(map(str, S))); sf.flush()
+        ev = json.loads(run("eval", gpath, "--set", sf.name, "--probes", 512))
     kk = np.setdiff1d(np.arange(n), S); lm = np.linalg.eigvalsh(L[np.ix_(kk, kk)])
     print(f"      eval tr_inv {ev['tr_inv']:.6g}±{ev['tr_inv_se']:.2g} exact {tr(1, lm):.6g}; tr_inv2 {ev['tr_inv2']:.6g} exact {tr(2, lm):.6g};"
           f" lambda_min {ev['lambda_min']:.8g} exact {lm[0]:.8g} (steps {ev['lanczos_steps']})")
